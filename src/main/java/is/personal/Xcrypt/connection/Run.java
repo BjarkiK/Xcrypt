@@ -1,5 +1,7 @@
 package main.java.is.personal.Xcrypt.connection;
 
+import main.java.is.personal.Xcrypt.logic.FileHandeling;
+
 public class Run {
 
 	private static String password;
@@ -16,7 +18,7 @@ public class Run {
 	
 	
 	public boolean run(){
-		HandleFiles handleFiles = new HandleFiles(password, username, path, action);
+		FileHandeling handleFiles = new FileHandeling(password, username, path, action);
 		return handleFiles.run();
 	}
 

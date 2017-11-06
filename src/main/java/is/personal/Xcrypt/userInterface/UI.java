@@ -4,36 +4,22 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
 import javax.swing.JRadioButton;
-import javax.swing.JSplitPane;
-import java.awt.FlowLayout;
-import javax.swing.SwingConstants;
-import javax.swing.event.AncestorListener;
 
 import main.java.is.personal.Xcrypt.connection.Run;
 
-import java.awt.CardLayout;
-import java.awt.GridLayout;
 import javax.swing.SpringLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import javax.swing.JLabel;
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.Toolkit;
 import javax.swing.JPasswordField;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 public class UI {
@@ -45,9 +31,6 @@ public class UI {
 	private JTextField textFieldUsername;
 	private JRadioButton rdbtnEncryp;
 	private JRadioButton rdbtnDecrypt_1;
-	private boolean runProgram = true;
-	
-	private boolean tri = false;
 
 	/**
 	 * Launch the application.
