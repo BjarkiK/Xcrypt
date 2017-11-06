@@ -11,6 +11,8 @@ import java.awt.FlowLayout;
 import javax.swing.SwingConstants;
 import javax.swing.event.AncestorListener;
 
+import main.java.is.personal.Xcrypt.connection.Run;
+
 import java.awt.CardLayout;
 import java.awt.GridLayout;
 import javax.swing.SpringLayout;
@@ -217,8 +219,8 @@ public class UI {
 				
 				if(runProgram == true){
 					progressBar.setValue(0);
-					//RunXcryption xCryption = new RunXcryption(password, username, path, action);
-					boolean status = true;//xCryption.run();
+					Run xCryption = new Run(password, username, path, action);
+					boolean status = xCryption.run();
 					if(status == true){
 						progressBar.setValue(100);
 					}
