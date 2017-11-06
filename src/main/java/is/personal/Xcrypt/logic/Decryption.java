@@ -1,4 +1,4 @@
-package logic;
+package main.java.is.personal.Xcrypt.logic;
 
 public class Decryption {
 
