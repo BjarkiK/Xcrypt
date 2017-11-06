@@ -5,15 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
+import main.java.is.personal.Xcrypt.dataStructures.Pixel;
+
 
 
 public class Encryption {
 	
-    private static int pixel = 0;
-    private static int a = 0;
-    private static int r = 0;
-    private static int g = 0;
-    private static int b = 0;
 
 	public Encryption() {
 	}
@@ -23,18 +20,13 @@ public class Encryption {
 		for(int i = 0; i < img.getWidth(); i++){
 	    	 for(int y = 0; y < img.getHeight(); y++){
 	    		 
-	    		 pixel = img.getRGB(i, y);
-	    		 a = (pixel >> 24) & 0xff;
-	    		 r = (pixel >> 16) & 0xff;
-	    		 g = (pixel >> 8) & 0xff;
-	    		 b = (pixel) & 0xff;
+	    		 Pixel p = new Pixel(img.getRGB(i, y));
 	    	
-	    		 r = (r +  random(rand, 0, 256))%256;
-	    		 g = (g + random(rand, 0, 256))%256;
-	    		 b = (b + random(rand, 0, 256))%256;
+	    		 p.r = (p.r +  random(rand, 0, 256))%256;
+	    		 p.g = (p.g + random(rand, 0, 256))%256;
+	    		 p.b = (p.b + random(rand, 0, 256))%256;
 
-	    		 img.setRGB(i, y, (a<<24) | (r<<16) | (g<<8) | b);
-	    		 
+	    		 img.setRGB(i, y, (p.a<<24) | (p.r<<16) | (p.g<<8) | p.b);
 	    	 }
 	    }
 		 return img;

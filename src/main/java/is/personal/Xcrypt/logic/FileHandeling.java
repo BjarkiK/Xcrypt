@@ -31,6 +31,10 @@ public class FileHandeling {
 		WhatToDo = Iaction;
 	}
 	
+	public FileHandeling(){
+
+	}
+	
 	public boolean run(){
 		try {
 			return runProgram();
@@ -176,7 +180,7 @@ public class FileHandeling {
 		return seed;
 	}
 	
-	private static void writeImage(BufferedImage img, File f, String filePath){
+	public static void writeImage(BufferedImage img, File f, String filePath){
 		try{
 	        f = new File(filePath);
 	        ImageIO.write(img, "png", f);
@@ -185,7 +189,7 @@ public class FileHandeling {
 	      }
 	}
 	
-	private static BufferedImage readImage(File f, String filePath){
+	public static BufferedImage readImage(File f, String filePath){
 	    try{
 	      f = new File(filePath);
 	      return ImageIO.read(f);

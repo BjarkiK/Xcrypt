@@ -5,15 +5,47 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
+import main.java.is.personal.Xcrypt.dataStructures.Pixel;
+
 public class Decryption {
 	
-    private static int pixel = 0;
-    private static int a = 0;
-    private static int r = 0;
-    private static int g = 0;
-    private static int b = 0;
 
 	public Decryption() {
+	}
+	
+	
+	public BufferedImage decryptImage(BufferedImage img, long seed) throws FileNotFoundException, IOException{
+	    Random rand = new Random(seed);
+	    int rand1 = 0;
+	    int rand2 = 0;
+	    int rand3 = 0;
+		for(int i = 0; i < img.getWidth(); i++){
+	    	 for(int y = 0; y < img.getHeight(); y++){
+	    		 
+	    		  
+	    		 Pixel p = new Pixel(img.getRGB(i, y));
+	    		 
+	    		 rand1 = random(rand, 0, 256);
+	    		 rand2 = random(rand, 0, 256);
+	    		 rand3 = random(rand, 0, 256);
+	    		 p.r = (p.r - rand1);
+	    		 p.g = (p.g - rand2);
+	    		 p.b = (p.b - rand3);
+	    		 
+	    		 if(p.r < 0){
+	    			 p.r = 256 + p.r;
+	    		 }
+	    		 if(p.g < 0){
+	    			 p.g = 256 + p.g;
+	    		 }
+	    		 if(p.b < 0){
+	    			 p.b = 256 + p.b;
+	    		 }   	
+
+	    		 img.setRGB(i, y, (p.a<<24) | (p.r<<16) | (p.g<<8) | p.b);
+	    	 }
+	    }
+		 return img;
 	}
 	
 	public String decryptName(String name, long seed){
@@ -65,44 +97,6 @@ public class Decryption {
 		return path + newName;
 	}
 	
-	
-	public BufferedImage decryptImage(BufferedImage img, long seed) throws FileNotFoundException, IOException{
-	    Random rand = new Random(seed);
-	    int rand1 = 0;
-	    int rand2 = 0;
-	    int rand3 = 0;
-		for(int i = 0; i < img.getWidth(); i++){
-	    	 for(int y = 0; y < img.getHeight(); y++){
-	    		 
-	    		  
-	    		 pixel = img.getRGB(i, y);
-	    		 a = (pixel >> 24) & 0xff;
-	    		 r = (pixel >> 16) & 0xff;
-	    		 g = (pixel >> 8) & 0xff;
-	    		 b = (pixel) & 0xff;
-	    		 	
-	    		 rand1 = random(rand, 0, 256);
-	    		 rand2 = random(rand, 0, 256);
-	    		 rand3 = random(rand, 0, 256);
-	    		 r = (r - rand1);
-	    		 g = (g - rand2);
-	    		 b = (b - rand3);
-	    		 
-	    		 if(r < 0){
-	    			 r = 256 + r;
-	    		 }
-	    		 if(g < 0){
-	    			 g = 256 + g;
-	    		 }
-	    		 if(b < 0){
-	    			 b = 256 + b;
-	    		 }   	
-
-	    		 img.setRGB(i, y, (a<<24) | (r<<16) | (g<<8) | b);
-	    	 }
-	    }
-		 return img;
-	}
 	
 	
 	private static int getPath(String name){

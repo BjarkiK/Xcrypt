@@ -1,6 +1,7 @@
 package main.java.is.personal.Xcrypt.connection;
 
 import main.java.is.personal.Xcrypt.logic.FileHandeling;
+import tests.java.is.personal.Xcrypt.Tests;
 
 public class Run {
 
