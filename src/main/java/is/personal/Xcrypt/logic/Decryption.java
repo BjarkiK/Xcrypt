@@ -116,21 +116,31 @@ public class Decryption {
 		char castBackChar = ' ';
 		for(int i = 0; i < name.length(); i++){
 
-			random = random(rand, 32, 245);
+			random = random(rand, 32, 254);
 			castInt = name.charAt(i);
 			tmpCastInt = castInt;
 			
 			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+		
+			boolean mod = false;
+			boolean pluss = false;
 			
-			if(castInt - random < 32){ //Ef modað var með 245 í encrypt
-				castInt = castInt - random + 245 - 32;
+			
+			
+
+
+			if(castInt - random < 32){ //Ef modað var með 254 í encrypt
+				castInt = castInt - random + 254 - 32;
+				mod = true;
 				if(castInt < 32){
+					pluss = true;
 					castInt = castInt + 32;
 				}
 			}
 			else{
 				castInt = castInt - random;
 			}
+
 			
 			if(tmpCastInt == 255){
 				i++;
@@ -138,11 +148,19 @@ public class Decryption {
 			}
 
 			castBackChar = (char) castInt;
-			System.out.println(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+			if(mod){
+				System.out.print(" -> MOD");
+			}
+			
+			if(pluss){
+				System.out.print(" -> PLUSS");
+			}
 			newName = newName + castBackChar;
+			System.out.println("");
 		}
 		
-//		newName = newName.toLowerCase();
+		newName = newName.toLowerCase();
 		return path + newName;
 	}
 	

@@ -49,12 +49,17 @@ public class Tests {
 	
 	
 	private static boolean testName() throws FileNotFoundException, IOException{
-		for(int i = 0; i < 100; i++){
-			if(!chechNameAfterXcryption("ifNameIsTheSame", i)){
-				System.out.println("Name: " + "ifNameIsTheSame");
-				System.out.println("Seed: " + i);
-				return false;
+		String[] words = {"MikKi Mú'UÚS", "ÖÐÞ'ÆæÆdÐP", "Stofa", "Mamma Mía", "Litla Herbergi", "Ýta", "DsdasDSDSD$C=)(&%", "Ö=Ö)(YGHCVGGVBNDKSD)87654534%&(D)JHNBC", 
+							"kjhgyfds879a9d&()=mdnsua'''Þ,mh887667H", "154=)(ui8908UHNMJhGCFVbnjmkljbhvdgc'Þ+Þ'Æ;LM;Þþæ.,lmk,."};
+		for(int i = 0; i < 1000; i++){
+			for(int y = 0; y < words.length; y++){
+				if(!chechNameAfterXcryption(words[y], i)){
+					System.out.println("Name: " + words[y]);
+					System.out.println("Seed: " + i);
+					return false;
+				}
 			}
+
 		}
 		return true;
 	}
