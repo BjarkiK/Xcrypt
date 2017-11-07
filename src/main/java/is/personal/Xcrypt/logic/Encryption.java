@@ -42,7 +42,7 @@ public class Encryption {
 		String path = name.substring(0, indexOfFile);
 		name = name.substring(indexOfFile, name.length()).toLowerCase();
 		
-		System.out.println(path + " AND " + name);
+//		System.out.println(path + " AND " + name);
 		
 		String newName = "";
 		int random = 0;
@@ -62,12 +62,12 @@ public class Encryption {
 			
 			
 			
-			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+//			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
 
 			
 			castInt = (castInt + random)%254;
-			boolean mod = false;
-			boolean pluss = false;
+//			boolean mod = false;
+//			boolean pluss = false;
 //			castInt = castInt + random;
 //			if(castInt >= 254){
 //				castInt = castInt - 254;
@@ -76,7 +76,7 @@ public class Encryption {
 			
 			if(castInt < 32){
 				castInt = castInt + 32;
-				pluss = true;
+//				pluss = true;
 			}
 			
 			tmp2CastInt = castInt;
@@ -95,23 +95,23 @@ public class Encryption {
 			
 
 			castBackChar = (char) castInt;
-			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
 			
-			if(mod){
-				System.out.print(" -> MOD");
-			}
-			if(pluss){
-				System.out.print(" -> PLUSS");
-			}
+//			if(mod){
+//				System.out.print(" -> MOD");
+//			}
+//			if(pluss){
+//				System.out.print(" -> PLUSS");
+//			}
 			newName = newName + castBackChar;
 			
 			if(castInt != tmp2CastInt){ //Ef final castið endar í 255
 				tmpCastInt = tmpCastInt + 6;
 				castBackChar = (char) tmpCastInt; //Færa bannstaf 6 sæti aftur í ascii töfluni
-				System.out.print(" SHIFT -> CastInt: " + tmpCastInt + " castBackChar: " + castBackChar);
+//				System.out.print(" SHIFT -> CastInt: " + tmpCastInt + " castBackChar: " + castBackChar);
 				newName = newName + castBackChar;
 			}
-			System.out.println("");
+//			System.out.println("");
 		}
 		return path + newName;
 	}

@@ -48,57 +48,7 @@ public class Decryption {
 		 return img;
 	}
 	
-	public String XdecryptName(String name, long seed){
-		Random rand = new Random(seed);
-		
-		int indexOfFile = getImgIndex(name);
-		String path = name.substring(0, indexOfFile);
-		name = name.substring(indexOfFile, name.length());
-		
-		System.out.println(path + " AND " + name);
-		
-		String newName = "";
-		
-		int castInt = 0;
-		int random = 0;
-		char castBackChar = ' ';
-		for(int i = 0; i < name.length(); i++){
 
-			random = random(rand, 32, 245);
-			castInt = name.charAt(i);
-			if(castInt == 246){castInt = 92;}
-			else if(castInt == 247){castInt = 47;}
-			else if(castInt == 248){castInt = 58;}
-			else if(castInt == 249){castInt = 42;}
-			else if(castInt == 250){castInt = 63;}
-			else if(castInt == 251){castInt = 34;}
-			else if(castInt == 252){castInt = 62;}
-			else if(castInt == 253){castInt = 60;}
-			else if(castInt == 254){castInt = 124;}
-			else if(castInt == 255){castInt = 160;}
-			
-			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
-			
-			if(castInt - random < 32){ //Ef modað var með 245 í encrypt
-				castInt = castInt - random + 245 - 32;
-				if(castInt < 32){
-					castInt = castInt + 32;
-				}
-			}
-			else{
-				castInt = castInt - random;
-			}
-
-			castBackChar = (char) castInt;
-			System.out.println(" CastInt: " + castInt + " castBackChar: " + castBackChar);
-			newName = newName + castBackChar;
-		}
-		
-//		newName = newName.toLowerCase();
-		return path + newName;
-	}
-	
-	
 	public String decryptName(String name, long seed){
 		Random rand = new Random(seed);
 		
@@ -106,7 +56,7 @@ public class Decryption {
 		String path = name.substring(0, indexOfFile);
 		name = name.substring(indexOfFile, name.length());
 		
-		System.out.println(path + " AND " + name);
+//		System.out.println(path + " AND " + name);
 		
 		String newName = "";
 		
@@ -120,20 +70,16 @@ public class Decryption {
 			castInt = name.charAt(i);
 			tmpCastInt = castInt;
 			
-			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+//			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
 		
-			boolean mod = false;
-			boolean pluss = false;
+//			boolean mod = false;
+//			boolean pluss = false;
 			
-			
-			
-
-
 			if(castInt - random < 32){ //Ef modað var með 254 í encrypt
 				castInt = castInt - random + 254 - 32;
-				mod = true;
+//				mod = true;
 				if(castInt < 32){
-					pluss = true;
+//					pluss = true;
 					castInt = castInt + 32;
 				}
 			}
@@ -148,16 +94,16 @@ public class Decryption {
 			}
 
 			castBackChar = (char) castInt;
-			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
-			if(mod){
-				System.out.print(" -> MOD");
-			}
-			
-			if(pluss){
-				System.out.print(" -> PLUSS");
-			}
+//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+//			if(mod){
+//				System.out.print(" -> MOD");
+//			}
+//			
+//			if(pluss){
+//				System.out.print(" -> PLUSS");
+//			}
 			newName = newName + castBackChar;
-			System.out.println("");
+//			System.out.println("");
 		}
 		
 		newName = newName.toLowerCase();

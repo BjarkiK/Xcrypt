@@ -54,8 +54,6 @@ public class Tests {
 		for(int i = 0; i < 1000; i++){
 			for(int y = 0; y < words.length; y++){
 				if(!chechNameAfterXcryption(words[y], i)){
-					System.out.println("Name: " + words[y]);
-					System.out.println("Seed: " + i);
 					return false;
 				}
 			}
@@ -76,7 +74,7 @@ public class Tests {
 		String newName = En.encryptName(name, seed);
 		newName = De.decryptName(newName, seed);
 		name = name.toLowerCase();
-		System.out.println(name + " : " + newName);
+//		System.out.println(name + " : " + newName);
 		return name.equals(newName);
 	}
 	private static boolean chechImgAfterXcryption(String originalPath, long seed) throws FileNotFoundException, IOException{
