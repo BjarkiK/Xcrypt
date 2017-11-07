@@ -4,21 +4,24 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
+import main.java.is.personal.Xcrypt.dataStructures.Pixel;
 import main.java.is.personal.Xcrypt.logic.Decryption;
 import main.java.is.personal.Xcrypt.logic.Encryption;
 import main.java.is.personal.Xcrypt.logic.FileHandeling;
 
 public class Tests {
+	
+	private static Encryption En = new Encryption();
+	private static Decryption De = new Decryption();
+	
+	
 	public Tests(){
 		
 	}
 
 	public static void main(String[] args) throws FileNotFoundException, IOException{
+		System.out.println("Starting tests");
 		if(runTests() == true){
 			System.out.println("All tests passed!");
 		}
@@ -28,74 +31,79 @@ public class Tests {
 		
 	}
 	
-	public static boolean runTests() throws FileNotFoundException, IOException{		
-		if(testLQimage() == false){
+	public static boolean runTests() throws FileNotFoundException, IOException{
+		if(testName() == false){
+			System.err.println("testName failed");
 			return false;
+		}
+		if(testLQimage() == false){
+			System.err.println("testLQimage failed");
+			return false;
+		}
+		if(testHQimage() == false){
+			System.err.println("testHQimage failed");
+			return false;
+		}
+		return true;
+	}
+	
+	
+	private static boolean testName() throws FileNotFoundException, IOException{
+		for(int i = 0; i < 100; i++){
+			if(!chechNameAfterXcryption("ifNameIsTheSame", i)){
+				System.out.println("Name: " + "ifNameIsTheSame");
+				System.out.println("Seed: " + i);
+				return false;
+			}
 		}
 		return true;
 	}
 	
 	private static boolean testLQimage() throws FileNotFoundException, IOException{
-		long seed = 254165111;
-		String originalPath = "src\\tests\\images\\img\\LQ\\LQ1.png";
-		String testPath = "src\\tests\\images\\test\\Test.png";
-
-		Path src = Paths.get(originalPath);
-		Path dst = Paths.get(testPath);
-		copyTestImage(src, dst);	
-
+		return chechImgAfterXcryption("src\\tests\\images\\img\\LQ\\LQ1.png", 323123532);
+	}
+	
+	private static boolean testHQimage() throws FileNotFoundException, IOException{
+		return chechImgAfterXcryption("src\\tests\\images\\img\\HQ\\HQ1.png", 323123532);
+	}
+	
+	private static boolean chechNameAfterXcryption(String name, long seed){
+		String newName = En.encryptName(name, seed);
+		newName = De.decryptName(newName, seed);
+		name = name.toLowerCase();
+		System.out.println(name + " : " + newName);
+		return name.equals(newName);
+	}
+	private static boolean chechImgAfterXcryption(String originalPath, long seed) throws FileNotFoundException, IOException{
 		
 		//Encrypt original image and Decrypt it again.
 		File f = null;
 	    BufferedImage  originalImg = FileHandeling.readImage(f, originalPath);
-		Encryption En = new Encryption();
-		BufferedImage testImg = En.encryptImage(originalImg, seed);
-		FileHandeling.writeImage(testImg, f, testPath);
-		
-		testImg =  FileHandeling.readImage(f, testPath);
-		Decryption De = new Decryption();
+	    BufferedImage testImg = FileHandeling.readImage(f, originalPath);
+
+		testImg = En.encryptImage(testImg, seed);
 		testImg = De.decryptImage(testImg, seed);
-		FileHandeling.writeImage(testImg, f, testPath);
 		
-		deleteFile("src\\tests\\images\\test");
-		return true;
+		return compareTwoImages(originalImg, testImg);
 	}
 	
-	private boolean compareTwoImages(BufferedImage original, BufferedImage test){
+	private static boolean compareTwoImages(BufferedImage original, BufferedImage test){
 		if(original.getHeight() != test.getHeight() || original.getWidth() != test.getWidth()){
 			return false;
 		}
 		
-		for(int i = 0; i < test.getHeight(); i++){
-			for(int y = 0; y < test.getWidth(); y++){
+		for(int i = 0; i < test.getWidth(); i++){
+			for(int y = 0; y < test.getHeight(); y++){
+				Pixel oP = new Pixel(original.getRGB(i, y));
+				Pixel tP = new Pixel(test.getRGB(i, y));
 				
+				if(oP.a != tP.a || oP.r != tP.r || oP.g != tP.g || oP.b != tP.b){
+					System.out.println("Pixel not the same");
+					return false;
+				}
 			}
 		}
 		return true;
-	}
-	
-	private static void copyTestImage(Path src, Path dst){
-
-		deleteFile("src\\tests\\images\\test").mkdir(); //Make sure it doesn't exist and make dir.
-		
-		try {
-			Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	private static File deleteFile(String path){
-		File f = new File(path); 
-		if(f.exists()){
-			File[] listOfFiles = f.listFiles();
-			for(int i = 0; i < listOfFiles.length; i++){
-				listOfFiles[i].delete();
-			}
-			f.delete();
-		}
-		return f;
 	}
 
 }

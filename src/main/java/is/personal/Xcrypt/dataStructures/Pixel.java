@@ -1,5 +1,6 @@
 package main.java.is.personal.Xcrypt.dataStructures;
 
+
 public class Pixel {
     public int a;
     public int r;
@@ -14,3 +15,7 @@ public class Pixel {
 	}
 
 }
+
+
+
+          

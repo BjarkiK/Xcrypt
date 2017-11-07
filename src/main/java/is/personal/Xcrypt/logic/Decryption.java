@@ -48,12 +48,12 @@ public class Decryption {
 		 return img;
 	}
 	
-	public String decryptName(String name, long seed){
+	public String XdecryptName(String name, long seed){
 		Random rand = new Random(seed);
 		
-		int indexOfFile = getPath(name);
-		String path = name.substring(0, indexOfFile+2);
-		name = name.substring(indexOfFile+2, name.length());
+		int indexOfFile = getImgIndex(name);
+		String path = name.substring(0, indexOfFile);
+		name = name.substring(indexOfFile, name.length());
 		
 		System.out.println(path + " AND " + name);
 		
@@ -94,14 +94,65 @@ public class Decryption {
 			newName = newName + castBackChar;
 		}
 		
+//		newName = newName.toLowerCase();
+		return path + newName;
+	}
+	
+	
+	public String decryptName(String name, long seed){
+		Random rand = new Random(seed);
+		
+		int indexOfFile = getImgIndex(name);
+		String path = name.substring(0, indexOfFile);
+		name = name.substring(indexOfFile, name.length());
+		
+		System.out.println(path + " AND " + name);
+		
+		String newName = "";
+		
+		int castInt = 0;
+		int tmpCastInt = 0;
+		int random = 0;
+		char castBackChar = ' ';
+		for(int i = 0; i < name.length(); i++){
+
+			random = random(rand, 32, 245);
+			castInt = name.charAt(i);
+			tmpCastInt = castInt;
+			
+			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+			
+			if(castInt - random < 32){ //Ef modað var með 245 í encrypt
+				castInt = castInt - random + 245 - 32;
+				if(castInt < 32){
+					castInt = castInt + 32;
+				}
+			}
+			else{
+				castInt = castInt - random;
+			}
+			
+			if(tmpCastInt == 255){
+				i++;
+				castInt = name.charAt(i) - 6;
+			}
+
+			castBackChar = (char) castInt;
+			System.out.println(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+			newName = newName + castBackChar;
+		}
+		
+//		newName = newName.toLowerCase();
 		return path + newName;
 	}
 	
 	
 	
-	private static int getPath(String name){
-		return name.lastIndexOf("//");
-
+	private static int getImgIndex(String name){
+		if(name.contains("//")){
+			return name.lastIndexOf("//") + 2;
+		}
+		return 0;
 	}
 	
 	private static int random(Random rand, int low, int high) {

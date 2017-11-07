@@ -38,9 +38,72 @@ public class Encryption {
 		Random rand = new Random(seed);
 		
 		//Cut of file name
-		int indexOfFile = getPath(name);
-		String path = name.substring(0, indexOfFile+2);
-		name = name.substring(indexOfFile+2, name.length());
+		int indexOfFile = getImgIndex(name);
+		String path = name.substring(0, indexOfFile);
+		name = name.substring(indexOfFile, name.length());//.toLowerCase();
+		
+		System.out.println(path + " AND " + name);
+		
+		String newName = "";
+		int random = 0;
+		int castInt = 0;
+		int tmpCastInt = 0;
+		int tmp2CastInt = 0;
+		char castBackChar = ' ';
+		for(int i = 0; i < name.length(); i++){
+
+			random = random(rand, 32, 245);
+			castInt = name.charAt(i);
+			tmpCastInt = castInt;
+			
+			if(castInt == 255){castInt = 253;}// Til að breyta ÿ (255) í ý (253)
+			
+			
+			
+			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+
+			
+			castInt = (castInt + random)%245;
+			if(castInt < 32){
+				castInt = castInt + 32;
+			}
+			
+			tmp2CastInt = castInt;
+			if(castInt == 92){castInt = 255;} //Breyta bannstöfum í ÿ (255)
+			else if(castInt == 47){castInt = 255;}
+			else if(castInt == 58){castInt = 255;}
+			else if(castInt == 42){castInt = 255;}
+			else if(castInt == 63){castInt = 255;}
+			else if(castInt == 34){castInt = 255;}
+			else if(castInt == 62){castInt = 255;}
+			else if(castInt == 60){castInt = 255;}
+			else if(castInt == 124){castInt = 255;}
+			else if(castInt == 127){castInt = 255;}
+			else if(castInt == 160){castInt = 255;}
+			
+
+			castBackChar = (char) castInt;
+			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+			newName = newName + castBackChar;
+			
+			if(castInt != tmp2CastInt){ //Ef final castið endar í 255
+				tmpCastInt = tmpCastInt + 6;
+				castBackChar = (char) tmpCastInt; //Færa bannstaf 6 sæti aftur í ascii töfluni
+				System.out.print(" SHIFT -> CastInt: " + tmpCastInt + " castBackChar: " + castBackChar);
+				newName = newName + castBackChar;
+			}
+			System.out.println("");
+		}
+		return path + newName;
+	}
+	
+	public String XencryptName(String name, long seed){
+		Random rand = new Random(seed);
+		
+		//Cut of file name
+		int indexOfFile = getImgIndex(name);
+		String path = name.substring(0, indexOfFile);
+		name = name.substring(indexOfFile, name.length());//.toLowerCase();
 		
 		System.out.println(path + " AND " + name);
 		
@@ -95,8 +158,11 @@ public class Encryption {
 		return path + newName;
 	}
 	
-	private static int getPath(String name){
-		return name.lastIndexOf("//");
+	private static int getImgIndex(String name){
+		if(name.contains("//")){
+			return name.lastIndexOf("//") + 2;
+		}
+		return 0;
 
 	}
 	
