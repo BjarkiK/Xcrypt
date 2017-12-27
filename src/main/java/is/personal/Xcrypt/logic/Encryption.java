@@ -39,10 +39,10 @@ public class Encryption {
 		int height = img.getHeight();
 		int width = img.getWidth();
 		Pixel p1 = new Pixel(img.getRGB(0, 0));
-		Pixel p2 = new Pixel(img.getRGB(0, height-1));
-		Pixel p3 = new Pixel(img.getRGB(0, width-1));
-		Pixel p4 = new Pixel(img.getRGB(height-1, width-1));
-		Pixel p5 = new Pixel(img.getRGB((height-1)/2, (width-1)/2));
+		Pixel p2 = new Pixel(img.getRGB(width-1, 0));
+		Pixel p3 = new Pixel(img.getRGB(0, height-1));
+		Pixel p4 = new Pixel(img.getRGB(width-1, height-1));
+		Pixel p5 = new Pixel(img.getRGB((width-1)/2, (height-1)/2));
 		if(p1.a == 45 || p2.a == 68 || p3.a == 21 || p4.a == 137 || p5.a == 211){
 			return true;
 		}
@@ -53,10 +53,10 @@ public class Encryption {
 		int height = img.getHeight();
 		int width = img.getWidth();
 		Pixel p1 = new Pixel(img.getRGB(0, 0));
-		Pixel p2 = new Pixel(img.getRGB(0, height-1));
-		Pixel p3 = new Pixel(img.getRGB(0, width-1));
-		Pixel p4 = new Pixel(img.getRGB(height-1, width-1));
-		Pixel p5 = new Pixel(img.getRGB((height-1)/2, (width-1)/2));
+		Pixel p2 = new Pixel(img.getRGB(width-1, 0));
+		Pixel p3 = new Pixel(img.getRGB(0, height-1));
+		Pixel p4 = new Pixel(img.getRGB(width-1, height-1));
+		Pixel p5 = new Pixel(img.getRGB((width-1)/2, (height-1)/2));
 		
 		p1.a = 45;
 		p2.a = 68;
@@ -65,10 +65,10 @@ public class Encryption {
 		p5.a = 211;
 
 		img.setRGB(0, 0, (p1.a<<24) | (p1.r<<16) | (p1.g<<8) | p1.b);
-		img.setRGB(0, height-1, (p2.a<<24) | (p2.r<<16) | (p2.g<<8) | p2.b);
-		img.setRGB(0, width-1, (p3.a<<24) | (p3.r<<16) | (p3.g<<8) | p3.b);
-		img.setRGB(height-1, width-1, (p4.a<<24) | (p4.r<<16) | (p4.g<<8) | p4.b);
-		img.setRGB((height-1)/2, (width-1)/2, (p5.a<<24) | (p5.r<<16) | (p5.g<<8) | p5.b);
+		img.setRGB(width-1, 0, (p2.a<<24) | (p2.r<<16) | (p2.g<<8) | p2.b);
+		img.setRGB(0, height-1, (p3.a<<24) | (p3.r<<16) | (p3.g<<8) | p3.b);
+		img.setRGB(width-1, height-1, (p4.a<<24) | (p4.r<<16) | (p4.g<<8) | p4.b);
+		img.setRGB((width-1)/2, (height-1)/2, (p5.a<<24) | (p5.r<<16) | (p5.g<<8) | p5.b);
 		
 		return img;
 	}
@@ -89,13 +89,11 @@ public class Encryption {
 		int random = 0;
 		int castInt = 0;
 		int tmpCastInt = 0;
-		int tmp2CastInt = 0;
 		char castBackChar = ' ';
 		for(int i = 0; i < name.length(); i++){
 
 			random = random(rand, 32, 254);
 			castInt = name.charAt(i);
-			tmpCastInt = castInt;
 			
 			if(castInt == 255){castInt = 253;}// Til að breyta ÿ (255) í ý (253)
 			else if(castInt == 180){castInt = 39;} //Breyta ´(180) í '(39)
@@ -103,7 +101,7 @@ public class Encryption {
 			
 			
 			
-//			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
 
 			
 			castInt = (castInt + random)%254;
@@ -120,23 +118,20 @@ public class Encryption {
 //				pluss = true;
 			}
 			
-			tmp2CastInt = castInt;
-			if(castInt == 92){castInt = 255;} //Breyta bannstöfum í ÿ (255)
+			tmpCastInt = castInt;
+			if(castInt == 34){castInt = 255;}//Breyta bannstöfum í ÿ (255)
+			else if(castInt == 42){castInt = 255;}
 			else if(castInt == 47){castInt = 255;}
 			else if(castInt == 58){castInt = 255;}
-			else if(castInt == 42){castInt = 255;}
-			else if(castInt == 63){castInt = 255;}
-			else if(castInt == 34){castInt = 255;}
-			else if(castInt == 62){castInt = 255;}
 			else if(castInt == 60){castInt = 255;}
+			else if(castInt == 62){castInt = 255;}
+			else if(castInt == 63){castInt = 255;}
+			else if(castInt == 92){castInt = 255;} 
 			else if(castInt == 124){castInt = 255;}
 			else if(castInt == 127){castInt = 255;}
 			else if(castInt == 160){castInt = 255;}
 			else if(castInt == 180){castInt = 255;}
 			
-
-			castBackChar = (char) castInt;
-//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
 			
 //			if(mod){
 //				System.out.print(" -> MOD");
@@ -144,16 +139,28 @@ public class Encryption {
 //			if(pluss){
 //				System.out.print(" -> PLUSS");
 //			}
-			newName = newName + castBackChar;
 			
-			if(castInt != tmp2CastInt){ //Ef final castið endar í 255
+			/*
+			 * Ef castInt != tmp2CastInt þá er castInt = 255 eða ÿ
+			 * Ef svo er þá er tmp2CastInt (upprunalegi castInt + random) + 6 og á eftir honum kemur þá ÿ.
+			 * Þegar það er afkóðað og það kemur ÿ þá er hann hundsaður og dregið 6 frá stafnum á undan og haldið áfram venjulega.
+			 */
+			if(castInt != tmpCastInt){ //Ef final castInt endar í 255
 				tmpCastInt = tmpCastInt + 6;
-				castBackChar = (char) tmpCastInt; //Færa bannstaf 6 sæti aftur í ascii töfluni
+				castBackChar = (char) tmpCastInt; //Færa bannstaf 6 sæti fram í ascii töfluni
 //				System.out.print(" SHIFT -> CastInt: " + tmpCastInt + " castBackChar: " + castBackChar);
 				newName = newName + castBackChar;
+				newName = newName + (char) 255;
 			}
-//			System.out.println("");
+			else{
+				castBackChar = (char) castInt;
+				newName = newName + castBackChar;
+			}
+			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+			System.out.println("");
 		}
+		System.out.println("NewName: " + newName);
+		System.out.println("Path + newName: " + path + newName);
 		return path + newName;
 	}
 	

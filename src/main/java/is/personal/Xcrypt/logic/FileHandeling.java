@@ -82,9 +82,13 @@ public class FileHandeling {
 					outputFile = encrypt.encryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
 				}
 				else if(WhatToDo == Decrypt){
-					Decryption encrypt = new Decryption();
-					img = encrypt.decryptImage(img, seed);
-					outputFile = encrypt.decryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
+					Decryption decrypt = new Decryption();
+					if(decrypt.isEncrypted(img) == false){
+						System.out.println("File is not encrypted so it can not be decrypted");
+						continue;
+					}
+					img = decrypt.decryptImage(img, seed);
+					outputFile = decrypt.decryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
 				}
 				
 				newImages.add(outputFile);
