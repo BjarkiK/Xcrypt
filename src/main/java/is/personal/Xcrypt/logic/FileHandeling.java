@@ -30,11 +30,7 @@ public class FileHandeling {
 		path = Ipath;
 		WhatToDo = Iaction;
 	}
-	
-	public FileHandeling(){
 
-	}
-	
 	public boolean run(){
 		try {
 			return runProgram();
@@ -62,6 +58,8 @@ public class FileHandeling {
 	    
 		try{
 			System.out.println("Start ");
+			ArrayList<String> alreadyDecr = new ArrayList<String>(); //Add all files already decrypted
+			ArrayList<String> deleteFiles = new ArrayList<String>(); //Decrypted files to delete
 			for(int i = 0; i < arr.img.size(); i++){
 				nextFile = arr.img.get(i);
 				System.out.println("Currend file: " + nextFile);
@@ -72,6 +70,14 @@ public class FileHandeling {
 				
 				if(WhatToDo == Encrypt){
 					Encryption encrypt = new Encryption();
+				    
+				    //If image already decrypted add path to array
+				    if(encrypt.isAlreadyEncrypted(img) == true){
+				    	System.out.println("Already encrypted");
+				    	alreadyDecr.add(nextFile);
+				    	continue;
+				    }
+				    
 					img = encrypt.encryptImage(img, seed);
 					outputFile = encrypt.encryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
 				}
@@ -94,9 +100,15 @@ public class FileHandeling {
 				
 				Path file = Paths.get(nextFile);
 				Files.setAttribute(file, "dos:hidden", true);
+				deleteFiles.add(nextFile);
 			}
 			
-			deleteImages(arr.img);
+			// If any file in folder was already decrypted
+			if(!alreadyDecr.isEmpty()){
+				System.out.println("One of more files were already decripted. Skip ing these files.");				
+			}
+			
+			deleteImages(deleteFiles);
 			return true;
 		}
 		catch(Exception e){

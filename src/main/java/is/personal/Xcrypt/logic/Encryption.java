@@ -7,16 +7,14 @@ import java.util.Random;
 
 import main.java.is.personal.Xcrypt.dataStructures.Pixel;
 
-
-
 public class Encryption {
 	
-
-	public Encryption() {
-	}
-	
+	/*
+	 * WARNING! Any alpha value will be set to 0;
+	 */
 	public BufferedImage encryptImage(BufferedImage img, long seed) throws FileNotFoundException, IOException{
-	    Random rand = new Random(seed);
+	    Random rand = new Random(seed);	    
+	    
 		for(int i = 0; i < img.getWidth(); i++){
 	    	 for(int y = 0; y < img.getHeight(); y++){
 	    		 
@@ -25,17 +23,60 @@ public class Encryption {
 	    		 p.r = (p.r +  random(rand, 0, 256))%256;
 	    		 p.g = (p.g + random(rand, 0, 256))%256;
 	    		 p.b = (p.b + random(rand, 0, 256))%256;
+	    		 p.a = 255;
 
 	    		 img.setRGB(i, y, (p.a<<24) | (p.r<<16) | (p.g<<8) | p.b);
 	    	 }
 	    }
-		 return img;
+		 return watermarkDecriptedFile(img);
+	}
+	
+	
+	public boolean isAlreadyEncrypted(BufferedImage img){
+		return checkIfAlreadyEncrypted(img);
+	}
+	private boolean checkIfAlreadyEncrypted(BufferedImage img){
+		int height = img.getHeight();
+		int width = img.getWidth();
+		Pixel p1 = new Pixel(img.getRGB(0, 0));
+		Pixel p2 = new Pixel(img.getRGB(0, height-1));
+		Pixel p3 = new Pixel(img.getRGB(0, width-1));
+		Pixel p4 = new Pixel(img.getRGB(height-1, width-1));
+		Pixel p5 = new Pixel(img.getRGB((height-1)/2, (width-1)/2));
+		if(p1.a == 45 || p2.a == 68 || p3.a == 21 || p4.a == 137 || p5.a == 211){
+			return true;
+		}
+		return false;
+	}
+	
+	private BufferedImage watermarkDecriptedFile(BufferedImage img){
+		int height = img.getHeight();
+		int width = img.getWidth();
+		Pixel p1 = new Pixel(img.getRGB(0, 0));
+		Pixel p2 = new Pixel(img.getRGB(0, height-1));
+		Pixel p3 = new Pixel(img.getRGB(0, width-1));
+		Pixel p4 = new Pixel(img.getRGB(height-1, width-1));
+		Pixel p5 = new Pixel(img.getRGB((height-1)/2, (width-1)/2));
+		
+		p1.a = 45;
+		p2.a = 68;
+		p3.a = 21;
+		p4.a = 137;
+		p5.a = 211;
+
+		img.setRGB(0, 0, (p1.a<<24) | (p1.r<<16) | (p1.g<<8) | p1.b);
+		img.setRGB(0, height-1, (p2.a<<24) | (p2.r<<16) | (p2.g<<8) | p2.b);
+		img.setRGB(0, width-1, (p3.a<<24) | (p3.r<<16) | (p3.g<<8) | p3.b);
+		img.setRGB(height-1, width-1, (p4.a<<24) | (p4.r<<16) | (p4.g<<8) | p4.b);
+		img.setRGB((height-1)/2, (width-1)/2, (p5.a<<24) | (p5.r<<16) | (p5.g<<8) | p5.b);
+		
+		return img;
 	}
 	
 	
 	
 	public String encryptName(String name, long seed){
-		Random rand = new Random(seed);
+		Random rand = new Random(seed); //New random with seed made from username and password
 		
 		//Cut of file name
 		int indexOfFile = getImgIndex(name);

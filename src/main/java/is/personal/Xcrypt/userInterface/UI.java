@@ -9,18 +9,28 @@ import javax.swing.JRadioButton;
 import main.java.is.personal.Xcrypt.connection.Run;
 
 import javax.swing.SpringLayout;
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JLabel;
 import java.awt.Color;
 import java.awt.Toolkit;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
+import javax.swing.JCheckBox;
+import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JFileChooser;
 
 public class UI {
 
@@ -50,18 +60,20 @@ public class UI {
 
 	/**
 	 * Create the application.
+	 * @throws IOException 
 	 */
-	public UI() {
+	public UI() throws IOException {
 		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws IOException 
 	 */
 	@SuppressWarnings("deprecation")
-	private void initialize() {
+	private void initialize() throws IOException {
 		
-		
+		// Render main window
 		frmEncrypt = new JFrame();
 		frmEncrypt.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Tron\\Pictures\\Capture.PNG"));
 		frmEncrypt.setTitle("Encrypt");
@@ -71,9 +83,12 @@ public class UI {
 		frmEncrypt.getContentPane().setLayout(springLayout);
 		
 		
+		// Radio buttons (En/Decript)
 		JRadioButton rdbtnEncrypt = rdbtnEncrypt(springLayout);
 		JRadioButton rdbtnDecrypt = rdbtnDecrypt(springLayout);
 		grouprdbtn(rdbtnEncrypt, rdbtnDecrypt);
+		
+		
 		
 		JLabel pathLable = new JLabel("Enter folder path");
 		springLayout.putConstraint(SpringLayout.NORTH, pathLable, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
@@ -83,7 +98,7 @@ public class UI {
 		textFieldPath = new JTextField();
 		springLayout.putConstraint(SpringLayout.NORTH, textFieldPath, 53, SpringLayout.NORTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, textFieldPath, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, textFieldPath, -23, SpringLayout.EAST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, textFieldPath, -103, SpringLayout.EAST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(textFieldPath);
 		textFieldPath.setColumns(10);
 		
@@ -99,7 +114,7 @@ public class UI {
 		
 		
 		fieldPassword = new JPasswordField();
-		springLayout.putConstraint(SpringLayout.WEST, fieldPassword, 21, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, fieldPassword, 0, SpringLayout.WEST, pathLable);
 		frmEncrypt.getContentPane().add(fieldPassword);
 
 		
@@ -110,7 +125,7 @@ public class UI {
 		frmEncrypt.getContentPane().add(usernameLable);
 		
 		textFieldUsername = new JTextField();
-		springLayout.putConstraint(SpringLayout.EAST, fieldPassword, -22, SpringLayout.EAST, textFieldUsername);
+		springLayout.putConstraint(SpringLayout.EAST, fieldPassword, -20, SpringLayout.EAST, textFieldUsername);
 		springLayout.putConstraint(SpringLayout.WEST, textFieldUsername, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, textFieldUsername, -252, SpringLayout.EAST, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.NORTH, textFieldUsername, 6, SpringLayout.SOUTH, usernameLable);
@@ -119,7 +134,7 @@ public class UI {
 		textFieldUsername.setColumns(10);
 		
 		JProgressBar progressBar = new JProgressBar();
-		springLayout.putConstraint(SpringLayout.WEST, progressBar, -410, SpringLayout.EAST, textFieldPath);
+		springLayout.putConstraint(SpringLayout.WEST, progressBar, 35, SpringLayout.WEST, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.SOUTH, progressBar, -10, SpringLayout.SOUTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.EAST, progressBar, -28, SpringLayout.EAST, frmEncrypt.getContentPane());
 		progressBar.setForeground(Color.GREEN);
@@ -127,7 +142,7 @@ public class UI {
 		frmEncrypt.getContentPane().add(progressBar);
 		
 		JLabel passwordErrorLable = new JLabel("Password cant be empty");
-		springLayout.putConstraint(SpringLayout.SOUTH, fieldPassword, -2, SpringLayout.NORTH, passwordErrorLable);
+		springLayout.putConstraint(SpringLayout.SOUTH, fieldPassword, -6, SpringLayout.NORTH, passwordErrorLable);
 		springLayout.putConstraint(SpringLayout.NORTH, passwordErrorLable, 4, SpringLayout.NORTH, rdbtnDecrypt_1);
 		springLayout.putConstraint(SpringLayout.WEST, passwordErrorLable, 0, SpringLayout.WEST, pathLable);
 		passwordErrorLable.setForeground(Color.RED);
@@ -136,7 +151,7 @@ public class UI {
 		
 		JLabel passwordLable = new JLabel("Enter password");
 		springLayout.putConstraint(SpringLayout.WEST, passwordLable, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, passwordLable, -6, SpringLayout.NORTH, fieldPassword);
+		springLayout.putConstraint(SpringLayout.SOUTH, passwordLable, -2, SpringLayout.NORTH, fieldPassword);
 		frmEncrypt.getContentPane().add(passwordLable);
 		
 		JLabel usernameErrorLable = new JLabel("Username can't be empty");
@@ -221,8 +236,66 @@ public class UI {
 		textFieldUsername.setText("bjarki");
 		fieldPassword.setText("bjarki");
 		textFieldPath.setText("D:\\photos - Copy");
+		
+		
+		/* Multiple decription
+		JCheckBox chckbxNewCheckBox = new JCheckBox("Multiple decription");
+		chckbxNewCheckBox.setToolTipText("Decript even if file has already been decripted");
+		springLayout.putConstraint(SpringLayout.NORTH, chckbxNewCheckBox, 29, SpringLayout.SOUTH, passwordErrorLable);
+		springLayout.putConstraint(SpringLayout.WEST, chckbxNewCheckBox, 0, SpringLayout.WEST, pathLable);
+		frmEncrypt.getContentPane().add(chckbxNewCheckBox);
+		*/
+		
+		
+		/* Select path window
+		JButton btnFile = new JButton("File");
+		btnFile.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				try {
+					String path = textFieldPath.getText();
+					if(path.equals("")){
+					}
+					else if(!new File(path).exists()){
+					}
+					selectPath();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		springLayout.putConstraint(SpringLayout.NORTH, btnFile, -1, SpringLayout.NORTH, textFieldPath);
+		springLayout.putConstraint(SpringLayout.EAST, btnFile, 0, SpringLayout.EAST, progressBar);
+		frmEncrypt.getContentPane().add(btnFile);
+		
+		*/
+	
 	}
 	
+	/**
+	 * Initialize the contents of the frame.
+	 * @throws IOException 
+	 */
+	@SuppressWarnings("deprecation")
+	private void selectPath(File path) throws IOException {
+		
+		// Render main window
+		frmEncrypt = new JFrame();
+		frmEncrypt.setTitle("Encrypt");
+		frmEncrypt.setBounds(100, 100, 484, 570);
+		frmEncrypt.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fileChooser.setCurrentDirectory(path);
+		int returnVal = fileChooser.showOpenDialog(frmEncrypt);
+		if(returnVal == JFileChooser.APPROVE_OPTION) {
+		   System.out.println("You chose to open this file: " + fileChooser.getSelectedFile().getName());
+		   fileChooser.hide();
+		}
+		frmEncrypt.getContentPane().add(fileChooser);
+	}
 
 
 	
@@ -251,5 +324,4 @@ public class UI {
 		group.add(rdbtnEncrypt);
 		group.add(rdbtnDecrypt);
 	}
-	
 }

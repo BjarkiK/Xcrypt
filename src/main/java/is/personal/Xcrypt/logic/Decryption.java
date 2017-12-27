@@ -15,6 +15,11 @@ public class Decryption {
 	
 	
 	public BufferedImage decryptImage(BufferedImage img, long seed) throws FileNotFoundException, IOException{
+		if(checkIfEncrypted(img) == false){
+			System.out.println("File is not encrypted so it can not be encrypted");
+			return img;
+		}
+		
 	    Random rand = new Random(seed);
 	    int rand1 = 0;
 	    int rand2 = 0;
@@ -31,6 +36,7 @@ public class Decryption {
 	    		 p.r = (p.r - rand1);
 	    		 p.g = (p.g - rand2);
 	    		 p.b = (p.b - rand3);
+	    		 p.a = 255;
 	    		 
 	    		 if(p.r < 0){
 	    			 p.r = 256 + p.r;
@@ -46,6 +52,20 @@ public class Decryption {
 	    	 }
 	    }
 		 return img;
+	}
+	
+	private boolean checkIfEncrypted(BufferedImage img){
+		int height = img.getHeight();
+		int width = img.getWidth();
+		Pixel p1 = new Pixel(img.getRGB(0, 0));
+		Pixel p2 = new Pixel(img.getRGB(0, height-1));
+		Pixel p3 = new Pixel(img.getRGB(0, width-1));
+		Pixel p4 = new Pixel(img.getRGB(height-1, width-1));
+		Pixel p5 = new Pixel(img.getRGB((height-1)/2, (width-1)/2));
+		if(p1.a == 45 && p2.a == 68 && p3.a == 21 && p4.a == 137 && p5.a == 211){
+			return true;
+		}
+		return false;
 	}
 	
 
@@ -70,7 +90,7 @@ public class Decryption {
 			castInt = name.charAt(i);
 			tmpCastInt = castInt;
 			
-//			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
 		
 //			boolean mod = false;
 //			boolean pluss = false;
@@ -94,7 +114,7 @@ public class Decryption {
 			}
 
 			castBackChar = (char) castInt;
-//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
 //			if(mod){
 //				System.out.print(" -> MOD");
 //			}
@@ -103,7 +123,7 @@ public class Decryption {
 //				System.out.print(" -> PLUSS");
 //			}
 			newName = newName + castBackChar;
-//			System.out.println("");
+			System.out.println("");
 		}
 		
 		newName = newName.toLowerCase();

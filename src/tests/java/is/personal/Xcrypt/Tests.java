@@ -15,10 +15,6 @@ public class Tests {
 	private static Encryption En = new Encryption();
 	private static Decryption De = new Decryption();
 	
-	
-	public Tests(){
-		
-	}
 
 	public static void main(String[] args) throws FileNotFoundException, IOException{
 		System.out.println("Starting tests");
