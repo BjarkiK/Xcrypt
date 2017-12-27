@@ -13,8 +13,11 @@ import javax.imageio.ImageIO;
 
 
 class FileArrays{
-	ArrayList<String> img = new ArrayList<String>();
-	ArrayList<String> dir = new ArrayList<String>();
+	ArrayList<String> img = new ArrayList<String>(); //Absolute path to files
+	ArrayList<String> dir = new ArrayList<String>(); //All sub directories in folder
+	ArrayList<String> alreadyEncr = new ArrayList<String>(); //Files in folder that are already encrypted
+	ArrayList<String> oldFiles = new ArrayList<String>(); //Old files being handeld
+	ArrayList<String> newFiles = new ArrayList<String>(); //Newly xcrypted files
 }
 
 public class FileHandeling {
@@ -25,8 +28,8 @@ public class FileHandeling {
 	private static int Encrypt = 0;
 	private static int Decrypt = 1;
 
-	public FileHandeling(String Ipassword, String Iusername, String Ipath, int Iaction){
-		seed = calcSeed(Ipassword, Iusername);
+	public FileHandeling(long Iseed, String Ipath, int Iaction){
+		seed = Iseed;
 		path = Ipath;
 		WhatToDo = Iaction;
 	}
@@ -42,7 +45,6 @@ public class FileHandeling {
 	
 	private static boolean runProgram() throws FileNotFoundException, IOException {
 		FileArrays arr = getFiles(path, new FileArrays());
-		ArrayList<String> newImages = new ArrayList<String>();
 
 		int nrOfImages = arr.img.size();
 		if(nrOfImages == 0){
@@ -58,8 +60,6 @@ public class FileHandeling {
 	    
 		try{
 			System.out.println("Start ");
-			ArrayList<String> alreadyDecr = new ArrayList<String>(); //Add all files already decrypted
-			ArrayList<String> deleteFiles = new ArrayList<String>(); //Decrypted files to delete
 			for(int i = 0; i < arr.img.size(); i++){
 				nextFile = arr.img.get(i);
 				System.out.println("Currend file: " + nextFile);
@@ -74,7 +74,7 @@ public class FileHandeling {
 				    //If image already decrypted add path to array
 				    if(encrypt.isAlreadyEncrypted(img) == true){
 				    	System.out.println("Already encrypted");
-				    	alreadyDecr.add(nextFile);
+				    	arr.alreadyEncr.add(nextFile);
 				    	continue;
 				    }
 				    
@@ -90,38 +90,37 @@ public class FileHandeling {
 					img = decrypt.decryptImage(img, seed);
 					outputFile = decrypt.decryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
 				}
+				arr.newFiles.add(outputFile);
 				
-				newImages.add(outputFile);
 				System.out.println("Outputing: " + outputFile);
 				System.out.println("");
 	
-				try{
-				    writeImage(img , f, outputFile);
-				}
-				catch (Exception e){
-					throw new FileNotFoundException();
-				}
+				writeImage(img , f, outputFile);
 				
 				Path file = Paths.get(nextFile);
 				Files.setAttribute(file, "dos:hidden", true);
-				deleteFiles.add(nextFile);
+				arr.oldFiles.add(nextFile);
 			}
 			
-			// If any file in folder was already decrypted
-			if(!alreadyDecr.isEmpty()){
+			// If any file in folder was already encrypted
+			if(!arr.alreadyEncr.isEmpty()){
 				System.out.println("One of more files were already decripted. Skip ing these files.");				
 			}
 			
-			deleteImages(deleteFiles);
+			deleteImages(arr.oldFiles);
 			return true;
 		}
 		catch(Exception e){
-			return runFailure(newImages, arr.img);
+			System.out.println("FileNotFoundException cught");
+			return runFailure(arr.newFiles, arr.img);
 		}
 
 		
 	}
 	
+	/*
+	 * When canceling Xcryption newly created files are deleted and all hidden files are unhidden
+	 */
 	private static boolean runFailure(ArrayList<String> newImages, ArrayList<String> oldImages){
 		deleteImages(newImages);
 		unhideFiles(oldImages);
@@ -129,6 +128,9 @@ public class FileHandeling {
 	}
 
 	
+	/*
+	 * When canceling Xcryption all files that have been hidden will be unhidden again
+	 */
 	private static void unhideFiles(ArrayList<String> arr){
 		try {
 			for(int i = 0; i < arr.size(); i++){
@@ -141,15 +143,25 @@ public class FileHandeling {
 		}
 	}
 	
+	
+	/*
+	 * Deletes all images in array arr
+	 */
 	private static void deleteImages(ArrayList<String> arr){
 	    File deleteFile = null;
 		for(int i = 0; i < arr.size(); i++){
 		    deleteFile = new File(arr.get(i).toString()); // Delete file
-		    deleteFile.delete();
+		    if(deleteFile.exists()){
+			    deleteFile.delete();
+		    }
 		}
 	}
 	
 	
+	/*
+	 * Takes in path to folder and adds all .jpg, .jpeg and .png t array. 
+	 * Returns that array
+	 */
 	private static FileArrays getFiles(String homeDirectory, FileArrays arr){	
 		String type = "";
 		File folder = new File(homeDirectory);
@@ -162,7 +174,7 @@ public class FileHandeling {
 			    	  arr.img.add(homeDirectory + "//" + listOfFiles[i].getName());
 		    	  }
 		      } else if (listOfFiles[i].isDirectory()) {
-		    	  arr.dir.add(homeDirectory + "//" + listOfFiles[i].getName());
+		    	  arr.dir.add(homeDirectory + "//" + listOfFiles[i].getName()); //adding subfolder to array
 		    	  getFiles(homeDirectory + "//" + listOfFiles[i].getName(), arr);
 		      }
 		    }
@@ -170,41 +182,19 @@ public class FileHandeling {
 	}
 	
 	
-	private static long calcSeed(String password, String username){
-		long seed = 0;
-		
-		//Chech witch word has more characters
-		int longerW = username.length();
-		if(password.length() > longerW){
-			longerW = password.length();
-		}
-		
-		
-		//Shuffle the words together p0+u0+p1+u1+p2+u2+p3+u3+p0+u4+p1+u5 t.d.
-		int pIndex = 0;
-		int uIndex = 0;
-		for(int i = 0; i < longerW; i++){
-			if(pIndex == password.length()){
-				pIndex = 0;
-			}
-			else if(uIndex == username.length()){
-				uIndex = 0;
-			}
-	    	seed += password.charAt(pIndex++);
-	    	seed += username.charAt(uIndex++);
-	    }
-		return seed;
-	}
+
 	
-	public static void writeImage(BufferedImage img, File f, String filePath){
-		try{
+	/*
+	 * Write image to disk
+	 */
+	public static void writeImage(BufferedImage img, File f, String filePath) throws IOException{
 	        f = new File(filePath);
 	        ImageIO.write(img, "png", f);
-	      }catch(IOException e){
-	        System.out.println(e);
-	      }
 	}
 	
+	/*
+	 * Read file f as image and return that image
+	 */
 	public static BufferedImage readImage(File f, String filePath){
 	    try{
 	      f = new File(filePath);
@@ -215,6 +205,9 @@ public class FileHandeling {
 	    }
 	}
 	
+	/*
+	 * Returns filextension, .png, .jpg ....
+	 */
 	private static String getFileExtension(String fileName){
 		return fileName.substring(fileName.toString().lastIndexOf('.')+1, fileName.toString().length());
 	}

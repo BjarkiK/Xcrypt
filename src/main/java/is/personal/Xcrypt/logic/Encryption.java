@@ -10,31 +10,39 @@ import main.java.is.personal.Xcrypt.dataStructures.Pixel;
 public class Encryption {
 	
 	/*
-	 * WARNING! Any alpha value will be set to 0;
+	 * WARNING! Any alpha value will be set to 255;
 	 */
 	public BufferedImage encryptImage(BufferedImage img, long seed) throws FileNotFoundException, IOException{
 	    Random rand = new Random(seed);	    
 	    
-		for(int i = 0; i < img.getWidth(); i++){
+		for(int x = 0; x < img.getWidth(); x++){
 	    	 for(int y = 0; y < img.getHeight(); y++){
 	    		 
-	    		 Pixel p = new Pixel(img.getRGB(i, y));
+	    		 Pixel p = new Pixel(img.getRGB(x, y));
 	    	
 	    		 p.r = (p.r +  random(rand, 0, 256))%256;
 	    		 p.g = (p.g + random(rand, 0, 256))%256;
 	    		 p.b = (p.b + random(rand, 0, 256))%256;
 	    		 p.a = 255;
 
-	    		 img.setRGB(i, y, (p.a<<24) | (p.r<<16) | (p.g<<8) | p.b);
+	    		 img.setRGB(x, y, (p.a<<24) | (p.r<<16) | (p.g<<8) | p.b);
 	    	 }
 	    }
 		 return watermarkDecriptedFile(img);
 	}
 	
 	
+	//Public function for checkIfAlreadyEncrypted(BufferedImage)
 	public boolean isAlreadyEncrypted(BufferedImage img){
 		return checkIfAlreadyEncrypted(img);
 	}
+	
+	
+	/*
+	 * Checks every corner pixel and center pixel if correct alpha 
+	 * value is set. If the correct alpha value was set in all cases this image 
+	 * is most likely already encrypted
+	 */
 	private boolean checkIfAlreadyEncrypted(BufferedImage img){
 		int height = img.getHeight();
 		int width = img.getWidth();
@@ -49,6 +57,11 @@ public class Encryption {
 		return false;
 	}
 	
+	
+	/*
+	 * Set all corner pixels and the center pixel to set alpha value. 
+	 * When set it is possible to check if image is already encrypted
+	 */
 	private BufferedImage watermarkDecriptedFile(BufferedImage img){
 		int height = img.getHeight();
 		int width = img.getWidth();
@@ -83,8 +96,6 @@ public class Encryption {
 		String path = name.substring(0, indexOfFile);
 		name = name.substring(indexOfFile, name.length()).toLowerCase();
 		
-//		System.out.println(path + " AND " + name);
-		
 		String newName = "";
 		int random = 0;
 		int castInt = 0;
@@ -95,31 +106,23 @@ public class Encryption {
 			random = random(rand, 32, 254);
 			castInt = name.charAt(i);
 			
-			if(castInt == 255){castInt = 253;}// Til að breyta ÿ (255) í ý (253)
-			else if(castInt == 180){castInt = 39;} //Breyta ´(180) í '(39)
-			else if(castInt == 96){castInt = 39;} //Breyta `(96) í '(39)
+			if(castInt == 255){castInt = 253;}		//Change ÿ (255) to ý (253)
+			else if(castInt == 180){castInt = 39;} 	//Change ´(180) to '(39)
+			else if(castInt == 96){castInt = 39;} 	//Change `(96) to '(39)
 			
 			
 			
-			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+//			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
 
 			
 			castInt = (castInt + random)%254;
-//			boolean mod = false;
-//			boolean pluss = false;
-//			castInt = castInt + random;
-//			if(castInt >= 254){
-//				castInt = castInt - 254;
-//				mod = true;
-//			}
 			
 			if(castInt < 32){
 				castInt = castInt + 32;
-//				pluss = true;
 			}
 			
 			tmpCastInt = castInt;
-			if(castInt == 34){castInt = 255;}//Breyta bannstöfum í ÿ (255)
+			if(castInt == 34){castInt = 255;}		//Change characters to allowed in file name to ÿ (255)
 			else if(castInt == 42){castInt = 255;}
 			else if(castInt == 47){castInt = 255;}
 			else if(castInt == 58){castInt = 255;}
@@ -132,23 +135,14 @@ public class Encryption {
 			else if(castInt == 160){castInt = 255;}
 			else if(castInt == 180){castInt = 255;}
 			
-			
-//			if(mod){
-//				System.out.print(" -> MOD");
-//			}
-//			if(pluss){
-//				System.out.print(" -> PLUSS");
-//			}
-			
 			/*
-			 * Ef castInt != tmp2CastInt þá er castInt = 255 eða ÿ
-			 * Ef svo er þá er tmp2CastInt (upprunalegi castInt + random) + 6 og á eftir honum kemur þá ÿ.
-			 * Þegar það er afkóðað og það kemur ÿ þá er hann hundsaður og dregið 6 frá stafnum á undan og haldið áfram venjulega.
+			 * If castInt != tmp2CastInt then castInt = 255 (ÿ)
+			 * If castInt = 255 then tmp2CastInt (Original castInt + random) + 6 and the next char on the right is ÿ.
+			 * When decrypted ten 6 is subtracted from char and ÿ is skipped.
 			 */
-			if(castInt != tmpCastInt){ //Ef final castInt endar í 255
+			if(castInt != tmpCastInt){ //If final castInt ends as 255 (char is forbidden in file name)
 				tmpCastInt = tmpCastInt + 6;
-				castBackChar = (char) tmpCastInt; //Færa bannstaf 6 sæti fram í ascii töfluni
-//				System.out.print(" SHIFT -> CastInt: " + tmpCastInt + " castBackChar: " + castBackChar);
+				castBackChar = (char) tmpCastInt; //Move forbidden v-char 6 seats higher in the ascii table
 				newName = newName + castBackChar;
 				newName = newName + (char) 255;
 			}
@@ -156,15 +150,16 @@ public class Encryption {
 				castBackChar = (char) castInt;
 				newName = newName + castBackChar;
 			}
-			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
-			System.out.println("");
+//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
+//			System.out.println("");
 		}
-		System.out.println("NewName: " + newName);
-		System.out.println("Path + newName: " + path + newName);
 		return path + newName;
 	}
 	
-		
+	
+	/*
+	 * Returns the index of the start of file name
+	 */
 	private static int getImgIndex(String name){
 		if(name.contains("//")){
 			return name.lastIndexOf("//") + 2;
@@ -173,6 +168,11 @@ public class Encryption {
 
 	}
 	
+	
+	/*
+	 * Generate random number from low to high with seed made from
+	 * username and password
+	 */
 	private static int random(Random rand, int low, int high) {
 		return rand.nextInt(high-low) + low;
 	}

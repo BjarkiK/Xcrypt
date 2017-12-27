@@ -45,6 +45,7 @@ public class Tests {
 	
 	
 	private static boolean testName() throws FileNotFoundException, IOException{
+		System.out.println("Testing filenames");
 		String[] words = {"MikKi Mú'UÚS", "ÖÐÞ'ÆæÆdÐP", "Stofa", "Mamma Mía", "Litla Herbergi", "Ýta", "DsdasDSDSD$C=)(&%", "Ö=Ö)(YGHCVGGVBNDKSD)87654534%&(D)JHNBC", 
 							"kjhgyfds879a9d&()=mdnsua'''Þ,mh887667H", "154=)(ui8908UHNMJhGCFVbnjmkljbhvdgc'Þ+Þ'Æ;LM;Þþæ.,lmk,."};
 		for(int i = 0; i < 1000; i++){
@@ -59,10 +60,12 @@ public class Tests {
 	}
 	
 	private static boolean testLQimage() throws FileNotFoundException, IOException{
+		System.out.println("Testig LQ image");
 		return chechImgAfterXcryption("src\\tests\\images\\img\\LQ\\LQ1.png", 323123532);
 	}
 	
 	private static boolean testHQimage() throws FileNotFoundException, IOException{
+		System.out.println("Testing HQ image");
 		return chechImgAfterXcryption("src\\tests\\images\\img\\HQ\\HQ1.png", 323123532);
 	}
 	
@@ -91,10 +94,10 @@ public class Tests {
 			return false;
 		}
 		
-		for(int i = 0; i < test.getWidth(); i++){
+		for(int x = 0; x < test.getWidth(); x++){
 			for(int y = 0; y < test.getHeight(); y++){
-				Pixel oP = new Pixel(original.getRGB(i, y));
-				Pixel tP = new Pixel(test.getRGB(i, y));
+				Pixel oP = new Pixel(original.getRGB(x, y));
+				Pixel tP = new Pixel(test.getRGB(x, y));
 				
 				if(oP.a != tP.a || oP.r != tP.r || oP.g != tP.g || oP.b != tP.b){
 					System.out.println("Pixel not the same");
