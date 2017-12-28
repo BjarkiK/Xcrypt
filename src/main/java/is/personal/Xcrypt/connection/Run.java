@@ -30,7 +30,7 @@ public class Run {
 		}
 		
 		
-		//Shuffle the words together p0+u0+p1+u1+p2+u2+p3+u3+p0+u4+p1+u5 t.d.
+		//Shuffle the words together p0+u0+p1+u1+p2+u2+p3+u3+p0+u4+p1+u5
 		int pIndex = 0;
 		int uIndex = 0;
 		for(int i = 0; i < longerW; i++){

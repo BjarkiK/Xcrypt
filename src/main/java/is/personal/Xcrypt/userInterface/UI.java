@@ -9,38 +9,38 @@ import javax.swing.JRadioButton;
 import main.java.is.personal.Xcrypt.connection.Run;
 
 import javax.swing.SpringLayout;
-import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JCheckBox;
-import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JFileChooser;
 
 public class UI {
 
-
+	private ArrayList<String> pathToFolder = new ArrayList<String>(); //Path to folder to encrypt again on exit
+	private ArrayList<String> authentication = new ArrayList<String>(); //Password and username 
+	private int Encrypt = 0;
+	private int Decrypt = 1;
 	private JFrame frmEncrypt;
 	private JTextField textFieldPath;
 	private JPasswordField fieldPassword;
 	private JTextField textFieldUsername;
 	private JRadioButton rdbtnEncryp;
-	private JRadioButton rdbtnDecrypt_1;
+	private JRadioButton rdbtnDecrypt;
 
 	/**
 	 * Launch the application.
@@ -77,61 +77,110 @@ public class UI {
 		frmEncrypt = new JFrame();
 		frmEncrypt.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Tron\\Pictures\\Capture.PNG"));
 		frmEncrypt.setTitle("Encrypt");
-		frmEncrypt.setBounds(100, 100, 484, 570);
-		frmEncrypt.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmEncrypt.setBounds(100, 100, 420, 530);
+		frmEncrypt.setMinimumSize(new Dimension(425, 450));
+		frmEncrypt.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frmEncrypt.addWindowListener(new WindowAdapter() {
+	        @Override
+	        public void windowClosing(WindowEvent event) {
+	        	int authInt = 0;
+	        	for(int i = 0; i < pathToFolder.size(); i++){
+	        		frmEncrypt.hide();
+	        		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt);
+	        		decryptOnExit.run();
+	        		authInt = authInt+2;
+	        	}      	
+	        	frmEncrypt.dispose();
+	            System.exit(0);
+	        }
+	    });
 		SpringLayout springLayout = new SpringLayout();
 		frmEncrypt.getContentPane().setLayout(springLayout);
 		
 		
-		// Radio buttons (En/Decript)
-		JRadioButton rdbtnEncrypt = rdbtnEncrypt(springLayout);
-		JRadioButton rdbtnDecrypt = rdbtnDecrypt(springLayout);
-		grouprdbtn(rdbtnEncrypt, rdbtnDecrypt);
+		JCheckBox chckbxEncryptOnExit = new JCheckBox("Encrypt on exit");
+		chckbxEncryptOnExit.setSelected(true);
+		springLayout.putConstraint(SpringLayout.NORTH, chckbxEncryptOnExit, 215, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, chckbxEncryptOnExit, 22, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(chckbxEncryptOnExit);
+		chckbxEncryptOnExit.hide();
+
 		
+		// Radio buttons (En/Decript)
+		JRadioButton rdbtnEncrypt = rdbtnEncrypt(springLayout, chckbxEncryptOnExit);
+		JRadioButton rdbtnDecrypt = rdbtnDecrypt(springLayout, chckbxEncryptOnExit);
+		grouprdbtn(rdbtnEncrypt, rdbtnDecrypt);
+
+
 		
 		
 		JLabel pathLable = new JLabel("Enter folder path");
-		springLayout.putConstraint(SpringLayout.NORTH, pathLable, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, pathLable, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.NORTH, pathLable, 15, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, pathLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(pathLable);
 		
 		textFieldPath = new JTextField();
-		springLayout.putConstraint(SpringLayout.NORTH, textFieldPath, 53, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, textFieldPath, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, textFieldPath, -103, SpringLayout.EAST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.NORTH, textFieldPath, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, textFieldPath, 60, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, textFieldPath, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, textFieldPath, 400, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(textFieldPath);
-		textFieldPath.setColumns(10);
 		
 		
 		JLabel pathErrorLable = new JLabel("");
-		springLayout.putConstraint(SpringLayout.NORTH, pathErrorLable, 2, SpringLayout.SOUTH, textFieldPath);
-		springLayout.putConstraint(SpringLayout.WEST, pathErrorLable, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, pathErrorLable, 402, SpringLayout.WEST, pathLable);
+		springLayout.putConstraint(SpringLayout.NORTH, pathErrorLable, 60, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, pathErrorLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
 		pathErrorLable.setForeground(Color.RED);
 		frmEncrypt.getContentPane().add(pathErrorLable);
 		pathErrorLable.hide();
 		
 		
 		
-		fieldPassword = new JPasswordField();
-		springLayout.putConstraint(SpringLayout.WEST, fieldPassword, 0, SpringLayout.WEST, pathLable);
-		frmEncrypt.getContentPane().add(fieldPassword);
-
-		
 		JLabel usernameLable = new JLabel("Enter username");
-		springLayout.putConstraint(SpringLayout.SOUTH, pathErrorLable, -11, SpringLayout.NORTH, usernameLable);
-		springLayout.putConstraint(SpringLayout.NORTH, usernameLable, 100, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, usernameLable, 0, SpringLayout.WEST, pathLable);
+		springLayout.putConstraint(SpringLayout.NORTH, usernameLable, 80, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, usernameLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(usernameLable);
 		
 		textFieldUsername = new JTextField();
-		springLayout.putConstraint(SpringLayout.EAST, fieldPassword, -20, SpringLayout.EAST, textFieldUsername);
-		springLayout.putConstraint(SpringLayout.WEST, textFieldUsername, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, textFieldUsername, -252, SpringLayout.EAST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.NORTH, textFieldUsername, 6, SpringLayout.SOUTH, usernameLable);
+		springLayout.putConstraint(SpringLayout.NORTH, textFieldUsername, 100, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, textFieldUsername, 125, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, textFieldUsername, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, textFieldUsername, 250, SpringLayout.WEST, frmEncrypt.getContentPane());
 		textFieldUsername.setToolTipText("");
 		frmEncrypt.getContentPane().add(textFieldUsername);
-		textFieldUsername.setColumns(10);
+		
+		JLabel usernameErrorLable = new JLabel("Username can't be empty");
+		usernameErrorLable.setForeground(Color.RED);
+		springLayout.putConstraint(SpringLayout.NORTH, usernameErrorLable, 125, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, usernameErrorLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(usernameErrorLable);
+		usernameErrorLable.hide();
+		
+		
+		
+		
+		JLabel passwordLable = new JLabel("Enter password");
+		springLayout.putConstraint(SpringLayout.NORTH, passwordLable, 145, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, passwordLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(passwordLable);
+		
+		fieldPassword = new JPasswordField();
+		springLayout.putConstraint(SpringLayout.NORTH, fieldPassword, 165, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, fieldPassword, 190, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, fieldPassword, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, fieldPassword, 250, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(fieldPassword);
+
+		JLabel passwordErrorLable = new JLabel("Password cant be empty");
+		springLayout.putConstraint(SpringLayout.NORTH, passwordErrorLable, 190, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, passwordErrorLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		passwordErrorLable.setForeground(Color.RED);
+		frmEncrypt.getContentPane().add(passwordErrorLable);
+		passwordErrorLable.hide();
+
+		
+		
+
 		
 		JProgressBar progressBar = new JProgressBar();
 		springLayout.putConstraint(SpringLayout.WEST, progressBar, 35, SpringLayout.WEST, frmEncrypt.getContentPane());
@@ -141,40 +190,18 @@ public class UI {
 		progressBar.setStringPainted(true);
 		frmEncrypt.getContentPane().add(progressBar);
 		
-		JLabel passwordErrorLable = new JLabel("Password cant be empty");
-		springLayout.putConstraint(SpringLayout.SOUTH, fieldPassword, -6, SpringLayout.NORTH, passwordErrorLable);
-		springLayout.putConstraint(SpringLayout.NORTH, passwordErrorLable, 4, SpringLayout.NORTH, rdbtnDecrypt_1);
-		springLayout.putConstraint(SpringLayout.WEST, passwordErrorLable, 0, SpringLayout.WEST, pathLable);
-		passwordErrorLable.setForeground(Color.RED);
-		frmEncrypt.getContentPane().add(passwordErrorLable);
-		passwordErrorLable.hide();
-		
-		JLabel passwordLable = new JLabel("Enter password");
-		springLayout.putConstraint(SpringLayout.WEST, passwordLable, 23, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, passwordLable, -2, SpringLayout.NORTH, fieldPassword);
-		frmEncrypt.getContentPane().add(passwordLable);
-		
-		JLabel usernameErrorLable = new JLabel("Username can't be empty");
-		usernameErrorLable.setForeground(Color.RED);
-		springLayout.putConstraint(SpringLayout.NORTH, usernameErrorLable, 6, SpringLayout.SOUTH, textFieldUsername);
-		springLayout.putConstraint(SpringLayout.WEST, usernameErrorLable, 0, SpringLayout.WEST, pathLable);
-		frmEncrypt.getContentPane().add(usernameErrorLable);
-		usernameErrorLable.hide();
-		
 		
 		JButton btnStart = new JButton("Start");
-		springLayout.putConstraint(SpringLayout.NORTH, btnStart, 131, SpringLayout.SOUTH, rdbtnDecrypt);
-		springLayout.putConstraint(SpringLayout.WEST, btnStart, 40, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, btnStart, -68, SpringLayout.SOUTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, btnStart, -55, SpringLayout.EAST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.NORTH, btnStart, 260, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, btnStart, -50, SpringLayout.SOUTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, btnStart, 50, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, btnStart, -50, SpringLayout.EAST, frmEncrypt.getContentPane());
 		btnStart.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				String path = textFieldPath.getText();
 				String username = textFieldUsername.getText();
 				String password = fieldPassword.getText();
-				int Encrypt = 0;
-				int Decrypt = 1;
 				int action = Encrypt;
 				boolean runProgram = true;
 
@@ -204,7 +231,6 @@ public class UI {
 				}
 				else{
 					usernameErrorLable.hide();
-					
 				}
 				
 				if(password.equals("")){
@@ -221,11 +247,15 @@ public class UI {
 					boolean status = xCryption.run();
 					if(status == true){
 						progressBar.setValue(100);
+						if(rdbtnDecrypt.isSelected() && chckbxEncryptOnExit.isSelected()){
+							pathToFolder.add(path);
+							authentication.add(password);
+							authentication.add(username);
+						}
 					}
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -236,6 +266,8 @@ public class UI {
 		textFieldUsername.setText("bjarki");
 		fieldPassword.setText("bjarki");
 		textFieldPath.setText("D:\\photos - Copy");
+
+
 		
 		
 		/* Multiple decription
@@ -300,23 +332,35 @@ public class UI {
 
 	
 	
-	private JRadioButton rdbtnEncrypt(SpringLayout springLayout){
+	private JRadioButton rdbtnEncrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
 		rdbtnEncryp = new JRadioButton("Encrypt");
+		rdbtnEncryp.addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("deprecation")
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				chckbxEncryptOnExit.hide();
+			}
+		});
 		rdbtnEncryp.setSelected(true);
-		springLayout.putConstraint(SpringLayout.NORTH, rdbtnEncryp, 175, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, rdbtnEncryp, -78, SpringLayout.EAST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, rdbtnEncryp, 0, SpringLayout.EAST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.NORTH, rdbtnEncryp, 120, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, rdbtnEncryp, 330, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(rdbtnEncryp);
 		return rdbtnEncryp;
 	}
 	
-	private JRadioButton rdbtnDecrypt(SpringLayout springLayout){
-		rdbtnDecrypt_1 = new JRadioButton("Decrypt");
-		springLayout.putConstraint(SpringLayout.NORTH, rdbtnDecrypt_1, 204, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, rdbtnDecrypt_1, 390, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, rdbtnDecrypt_1, 0, SpringLayout.EAST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(rdbtnDecrypt_1);
-		return rdbtnDecrypt_1;
+	private JRadioButton rdbtnDecrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
+		rdbtnDecrypt = new JRadioButton("Decrypt");
+		rdbtnDecrypt.addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("deprecation")
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				chckbxEncryptOnExit.show();
+			}
+		});
+		springLayout.putConstraint(SpringLayout.NORTH, rdbtnDecrypt, 140, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, rdbtnDecrypt, 330, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(rdbtnDecrypt);
+		return rdbtnDecrypt;
 	}
 	
 	private void grouprdbtn(JRadioButton rdbtnEncrypt, JRadioButton rdbtnDecrypt){

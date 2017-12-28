@@ -60,6 +60,7 @@ public class FileHandeling {
 	    
 		try{
 			System.out.println("Start ");
+			int countSuccess = 0;
 			for(int i = 0; i < arr.img.size(); i++){
 				nextFile = arr.img.get(i);
 				System.out.println("Currend file: " + nextFile);
@@ -80,6 +81,7 @@ public class FileHandeling {
 				    
 					img = encrypt.encryptImage(img, seed);
 					outputFile = encrypt.encryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
+					countSuccess++;
 				}
 				else if(WhatToDo == Decrypt){
 					Decryption decrypt = new Decryption();
@@ -89,6 +91,7 @@ public class FileHandeling {
 					}
 					img = decrypt.decryptImage(img, seed);
 					outputFile = decrypt.decryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
+					countSuccess++;
 				}
 				arr.newFiles.add(outputFile);
 				
@@ -108,7 +111,12 @@ public class FileHandeling {
 			}
 			
 			deleteImages(arr.oldFiles);
-			return true;
+			
+			//Return true if any file was changed, else false.
+			if(countSuccess > 0){
+				return true;
+			}
+			return false;
 		}
 		catch(Exception e){
 			System.out.println("FileNotFoundException cught");
