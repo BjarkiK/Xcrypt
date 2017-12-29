@@ -10,6 +10,7 @@ import javax.swing.JRadioButton;
 import main.java.is.personal.Xcrypt.connection.Run;
 
 import javax.swing.SpringLayout;
+import javax.swing.SwingWorker;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -19,11 +20,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.font.TextAttribute;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 import javax.swing.JLabel;
 import java.awt.Color;
@@ -33,22 +32,56 @@ import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 
-public class UI {
+public class UI{
 
+	private static final long serialVersionUID = 1L;
 	private ArrayList<String> pathToFolder = new ArrayList<String>(); //Path to folder to encrypt again on exit		//Minor security hole! Fix when there is time
 	private ArrayList<String> authentication = new ArrayList<String>(); //Password and username 					//Security hole! Fix when there is time
 	private int Encrypt = 0;
 	private int Decrypt = 1;
 	private JFrame frmEncrypt;
-	private JTextField textFieldPath;
+	private JTextField textFieldPath, textFieldUsername;
 	private JPasswordField fieldPassword;
-	private JTextField textFieldUsername;
-	private JRadioButton rdbtnEncryp;
-	private JRadioButton rdbtnDecrypt;
+	private JRadioButton rdbtnEncryp, rdbtnDecrypt;
 	private static JButton btnStart;
-	private JLabel BGImage;
+	private JCheckBox chckbxEncryptOnExit;
+	private JLabel BGImage, lblProsesslabel, secretLabel;
+	private JProgressBar progressBar;
+	private DynamicProgressBarExecute exProgressBar;
+	
+	
+	class DynamicProgressBarExecute extends SwingWorker<Object, Object>{
+		private String password, username, path;
+		private int action;
+		
+		DynamicProgressBarExecute(String pw, String un, String path, int action){
+			this.password = pw;
+			this.username = un;
+			this.path = path;
+			this.action = action;
+		}
+
+		@Override
+		protected Object doInBackground() throws Exception {
+			btnStart.setEnabled(false);
+			Run xCryption = new Run(password, username, path, action);
+			boolean status = xCryption.run(progressBar, lblProsesslabel);
+			if(status == true){
+				if(rdbtnDecrypt.isSelected() && chckbxEncryptOnExit.isSelected()){
+					pathToFolder.add(path);
+					authentication.add(password);
+					authentication.add(username);
+				}
+			}
+			sleep(1000);
+			btnStart.setEnabled(true);
+			return null;
+		}
+	}
 
 	/**
 	 * Launch the application.
@@ -96,22 +129,22 @@ public class UI {
 			//When x is pressed this function will run. If decrypt on exit was set and un and pw is correct then folder will be encrypted.
 	        @Override
 	        public void windowClosing(WindowEvent event) {
-	        	int authInt = 0;
-	        	for(int i = 0; i < pathToFolder.size(); i++){
-	        		frmEncrypt.hide();
-	        		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt);
-	        		decryptOnExit.run();
-	        		authInt = authInt+2;
-	        	}      	
-	        	frmEncrypt.dispose();
-	            System.exit(0);
+        		frmEncrypt.enable(false);
+	        	int progressBarStatus = progressBar.getValue();
+	        	if(progressBarStatus > 0 && progressBarStatus < 100){
+	        		System.out.println("Xcryption in prosess. Can't close");
+	        		ProcessRuningOnExit warningWindow = new ProcessRuningOnExit(secretLabel);
+	        		warningWindow.execute();
+	        		return;
+	        	}
+	        	decryptOnExit();
 	        }
 	    });
 		SpringLayout springLayout = new SpringLayout();
 		frmEncrypt.getContentPane().setLayout(springLayout);
 		
 		
-		JCheckBox chckbxEncryptOnExit = new JCheckBox("Encrypt on exit");
+		chckbxEncryptOnExit = new JCheckBox("Encrypt on exit");
 		chckbxEncryptOnExit.setFont(new Font("Cambria", Font.PLAIN, 14));
 		disableBackground(chckbxEncryptOnExit);
 		chckbxEncryptOnExit.setSelected(true);
@@ -129,11 +162,12 @@ public class UI {
 
 		
 		
-		JLabel pathLable = new JLabel("Enter folder path");
-		pathLable.setFont(new Font("Cambria", Font.BOLD, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, pathLable, 15, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, pathLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(pathLable);
+		
+		JLabel pathLabel = new JLabel("Enter folder path");
+		pathLabel.setFont(new Font("Cambria", Font.BOLD, 14));
+		springLayout.putConstraint(SpringLayout.NORTH, pathLabel, 15, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, pathLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(pathLabel);
 		
 		textFieldPath = new JTextField();
 		textFieldPath.setFont(new Font("Cambria", Font.PLAIN, 14));
@@ -146,21 +180,21 @@ public class UI {
 		frmEncrypt.getContentPane().add(textFieldPath);
 		
 		
-		JLabel pathErrorLable = new JLabel("");
-		pathErrorLable.setFont(new Font("Cambria", Font.PLAIN, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, pathErrorLable, 60, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, pathErrorLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		pathErrorLable.setForeground(Color.ORANGE);
-		frmEncrypt.getContentPane().add(pathErrorLable);
-		pathErrorLable.hide();
+		JLabel pathErrorLabel = new JLabel("");
+		pathErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
+		springLayout.putConstraint(SpringLayout.NORTH, pathErrorLabel, 60, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, pathErrorLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		pathErrorLabel.setForeground(Color.ORANGE);
+		frmEncrypt.getContentPane().add(pathErrorLabel);
+		pathErrorLabel.hide();
 		
 		
 		
-		JLabel usernameLable = new JLabel("Enter username");
-		usernameLable.setFont(new Font("Cambria", Font.BOLD, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, usernameLable, 80, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, usernameLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(usernameLable);
+		JLabel usernameLabel = new JLabel("Enter username");
+		usernameLabel.setFont(new Font("Cambria", Font.BOLD, 14));
+		springLayout.putConstraint(SpringLayout.NORTH, usernameLabel, 80, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, usernameLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(usernameLabel);
 		
 		textFieldUsername = new JTextField();
 		textFieldUsername.setFont(new Font("Cambria", Font.PLAIN, 14));
@@ -173,22 +207,22 @@ public class UI {
 		textFieldUsername.setToolTipText("");
 		frmEncrypt.getContentPane().add(textFieldUsername);
 		
-		JLabel usernameErrorLable = new JLabel("Username can't be empty");
-		usernameErrorLable.setFont(new Font("Cambria", Font.PLAIN, 14));
-		usernameErrorLable.setForeground(Color.ORANGE);
-		springLayout.putConstraint(SpringLayout.NORTH, usernameErrorLable, 125, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, usernameErrorLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(usernameErrorLable);
-		usernameErrorLable.hide();
+		JLabel usernameErrorLabel = new JLabel("Username can't be empty");
+		usernameErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
+		usernameErrorLabel.setForeground(Color.ORANGE);
+		springLayout.putConstraint(SpringLayout.NORTH, usernameErrorLabel, 125, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, usernameErrorLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(usernameErrorLabel);
+		usernameErrorLabel.hide();
 		
 		
 		
 		
-		JLabel passwordLable = new JLabel("Enter password");
-		passwordLable.setFont(new Font("Cambria", Font.BOLD, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, passwordLable, 145, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, passwordLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(passwordLable);
+		JLabel passwordLabel = new JLabel("Enter password");
+		passwordLabel.setFont(new Font("Cambria", Font.BOLD, 14));
+		springLayout.putConstraint(SpringLayout.NORTH, passwordLabel, 145, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, passwordLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(passwordLabel);
 		
 		fieldPassword = new JPasswordField();
 		fieldPassword.setOpaque(false);
@@ -199,19 +233,18 @@ public class UI {
 		springLayout.putConstraint(SpringLayout.EAST, fieldPassword, 250, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(fieldPassword);
 
-		JLabel passwordErrorLable = new JLabel("Password can't be empty");
-		passwordErrorLable.setFont(new Font("Cambria", Font.PLAIN, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, passwordErrorLable, 190, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, passwordErrorLable, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		passwordErrorLable.setForeground(Color.ORANGE);
-		frmEncrypt.getContentPane().add(passwordErrorLable);
-		passwordErrorLable.hide();
+		JLabel passwordErrorLabel = new JLabel("Password can't be empty");
+		passwordErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
+		springLayout.putConstraint(SpringLayout.NORTH, passwordErrorLabel, 190, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, passwordErrorLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
+		passwordErrorLabel.setForeground(Color.ORANGE);
+		frmEncrypt.getContentPane().add(passwordErrorLabel);
+		passwordErrorLabel.hide();
 
 		
 		
 
-		
-		JProgressBar progressBar = new JProgressBar();
+		progressBar = new JProgressBar();
 		progressBar.setFont(new Font("Cambria", Font.PLAIN, 12));
 		springLayout.putConstraint(SpringLayout.WEST, progressBar, 35, SpringLayout.WEST, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.SOUTH, progressBar, -10, SpringLayout.SOUTH, frmEncrypt.getContentPane());
@@ -219,6 +252,13 @@ public class UI {
 		progressBar.setForeground(Color.GREEN);
 		progressBar.setStringPainted(true);
 		frmEncrypt.getContentPane().add(progressBar);
+		
+		
+		lblProsesslabel = new JLabel("");
+		lblProsesslabel.setFont(new Font("Cambria", Font.PLAIN, 11));
+		springLayout.putConstraint(SpringLayout.NORTH, lblProsesslabel, 456, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, lblProsesslabel, 35, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(lblProsesslabel);
 		
 		
 		
@@ -232,10 +272,15 @@ public class UI {
 		btnStart.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				if(!btnStart.isEnabled()){
+					return;
+				}
+				progressBar.setValue(0);
 				setMainBackgroundImage("bgImageExtended.png");
 				if(mouseReleasedInsideButton(e) == false){
 					return;
 				}
+
 				String path = textFieldPath.getText();
 				String username = textFieldUsername.getText();
 				String password = fieldPassword.getText();
@@ -249,52 +294,39 @@ public class UI {
 
 				
 				if(path.equals("")){
-					pathErrorLable.setText("Please enter path!");
-					pathErrorLable.show();
+					pathErrorLabel.setText("Please enter path!");
+					pathErrorLabel.show();
 					runProgram = false;
 				}
 				else if(!new File(path).exists()){
-					pathErrorLable.setText("Please enter valid path!");
-					pathErrorLable.show();
+					pathErrorLabel.setText("Please enter valid path!");
+					pathErrorLabel.show();
 					runProgram = false;
 				}
 				else{
-					pathErrorLable.hide();
+					pathErrorLabel.hide();
 				}
 				
 				if(username.equals("")){
-					usernameErrorLable.show();
+					usernameErrorLabel.show();
 					runProgram = false;
 				}
 				else{
-					usernameErrorLable.hide();
+					usernameErrorLabel.hide();
 				}
 				
 				if(password.equals("")){
-					passwordErrorLable.show();
+					passwordErrorLabel.show();
 					runProgram = false;
 				}
 				else{
-					passwordErrorLable.hide();
+					passwordErrorLabel.hide();
 				}
 				
 				if(runProgram == true){
-					progressBar.setValue(0);
-					Run xCryption = new Run(password, username, path, action);
-					boolean status = xCryption.run();
-					if(status == true){
-						progressBar.setValue(100);
-						if(rdbtnDecrypt.isSelected() && chckbxEncryptOnExit.isSelected()){
-							pathToFolder.add(path);
-							authentication.add(password);
-							authentication.add(username);
-						}
-					}
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException err) {
-						err.printStackTrace();
-					}
+					exProgressBar = new DynamicProgressBarExecute(password, username, path, action);
+					exProgressBar.execute();
+
 				}
 			}
 			@Override
@@ -316,6 +348,30 @@ public class UI {
 		textFieldUsername.setText("bjarki");
 		fieldPassword.setText("bjarki");
 		textFieldPath.setText("D:\\photos - Copy");
+		
+		
+		secretLabel = new JLabel("");
+		secretLabel.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent arg0) {
+				frmEncrypt.show();
+				System.out.println("---------------------------------------------------PropertyChange");
+				if(secretLabel.getText().equals("Exit")){
+					secretLabel.setText("");
+					while(progressBar.getValue() != 100){
+						sleep(250);
+					}
+					decryptOnExit();
+				}
+				else if(secretLabel.getText().equals("Wait")){
+					frmEncrypt.enable(true);
+					secretLabel.setText("");
+				}
+			}
+		});
+		springLayout.putConstraint(SpringLayout.NORTH, secretLabel, 0, SpringLayout.NORTH, chckbxEncryptOnExit);
+		springLayout.putConstraint(SpringLayout.WEST, secretLabel, 0, SpringLayout.EAST, chckbxEncryptOnExit);
+		secretLabel.hide();
+		frmEncrypt.getContentPane().add(secretLabel);
 		
 		BGImage = new JLabel("");
 		setMainBackgroundImage("bgImageExtended.png");
@@ -375,8 +431,29 @@ public class UI {
 		frmEncrypt.getContentPane().add(fileChooser);
 	}
 
-
+	private void sleep(int milliseconds){
+		try {
+			Thread.sleep(milliseconds);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 	
+	/*
+	 * Decrypts folders in array pathToFolder if any
+	 */
+	@SuppressWarnings("deprecation")
+	private void decryptOnExit(){
+    	int authInt = 0;
+    	for(int i = 0; i < pathToFolder.size(); i++){
+    		frmEncrypt.hide();
+    		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt);
+    		decryptOnExit.run(progressBar, lblProsesslabel);
+    		authInt = authInt+2;
+    	}      	
+    	frmEncrypt.dispose();
+        System.exit(0);
+	}
 	
 	private JRadioButton rdbtnEncrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
 		rdbtnEncryp = new JRadioButton("Encrypt");
@@ -439,5 +516,9 @@ public class UI {
 		ButtonGroup group = new ButtonGroup();
 		group.add(rdbtnEncrypt);
 		group.add(rdbtnDecrypt);
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 }

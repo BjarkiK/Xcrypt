@@ -1,5 +1,8 @@
 package main.java.is.personal.Xcrypt.connection;
 
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+
 import main.java.is.personal.Xcrypt.logic.FileHandeling;
 
 public class Run {
@@ -15,9 +18,9 @@ public class Run {
 	}
 	
 	
-	public boolean run(){
+	public boolean run(JProgressBar progressBar, JLabel lblProsesslabel){
 		FileHandeling handleFiles = new FileHandeling(seed, path, action);
-		return handleFiles.run();
+		return handleFiles.run(progressBar, lblProsesslabel);
 	}
 	
 	private static long calcSeed(String password, String username){

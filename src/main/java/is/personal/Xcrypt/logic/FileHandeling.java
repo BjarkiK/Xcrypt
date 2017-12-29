@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 
 
 class FileArrays{
@@ -24,9 +26,7 @@ public class FileHandeling {
 
 	private static long seed;
 	private static String path;
-	private static int WhatToDo;
-	private static int Encrypt = 0;
-	private static int Decrypt = 1;
+	private static int WhatToDo, Encrypt = 0, Decrypt = 1;
 
 	public FileHandeling(long Iseed, String Ipath, int Iaction){
 		seed = Iseed;
@@ -34,16 +34,16 @@ public class FileHandeling {
 		WhatToDo = Iaction;
 	}
 
-	public boolean run(){
+	public boolean run(JProgressBar progressBar, JLabel lblProsesslabel){
 		try {
-			return runProgram();
+			return runProgram(progressBar, lblProsesslabel);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
 	
-	private static boolean runProgram() throws FileNotFoundException, IOException {
+	private static boolean runProgram(JProgressBar progressBar, JLabel lblProsesslabel) throws FileNotFoundException, IOException {
 		FileArrays arr = getFiles(path, new FileArrays());
 
 		int nrOfImages = arr.img.size();
@@ -76,6 +76,7 @@ public class FileHandeling {
 				    if(encrypt.isAlreadyEncrypted(img) == true){
 				    	System.out.println("Already encrypted");
 				    	arr.alreadyEncr.add(nextFile);
+				    	updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
 				    	continue;
 				    }
 				    
@@ -87,6 +88,7 @@ public class FileHandeling {
 					Decryption decrypt = new Decryption();
 					if(decrypt.isEncrypted(img) == false){
 						System.out.println("File is not encrypted so it can not be decrypted");
+						updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
 						continue;
 					}
 					img = decrypt.decryptImage(img, seed);
@@ -103,6 +105,9 @@ public class FileHandeling {
 				Path file = Paths.get(nextFile);
 				Files.setAttribute(file, "dos:hidden", true);
 				arr.oldFiles.add(nextFile);
+				
+				updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
+				Thread.sleep(700);
 			}
 			
 			// If any file in folder was already encrypted
@@ -111,7 +116,8 @@ public class FileHandeling {
 			}
 			
 			deleteImages(arr.oldFiles);
-			
+			progressBar.setValue(100);
+			lblProsesslabel.setText(nrOfImages + "/" + nrOfImages);
 			//Return true if any file was changed, else false.
 			if(countSuccess > 0){
 				return true;
@@ -133,6 +139,20 @@ public class FileHandeling {
 		deleteImages(newImages);
 		unhideFiles(oldImages);
 		return false;
+	}
+	
+	/*
+	 * Updates the progressBar and progressLabel on the main jFrame
+	 */
+	private static void updateJFrame(int i, int nrOfImages, JProgressBar progressBar, JLabel lblProsesslabel){
+		double percentage = ((double)i+1)/(double)nrOfImages*100;
+		
+		//Check to make sure JFrame can't be closed before process is completely done
+		if((int)percentage == 100){
+			return;
+		}
+		progressBar.setValue((int)percentage);
+		lblProsesslabel.setText((i+1) + "/" + nrOfImages);
 	}
 
 	
