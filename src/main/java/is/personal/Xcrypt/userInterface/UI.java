@@ -1,6 +1,7 @@
 package main.java.is.personal.Xcrypt.userInterface;
 
 import java.awt.EventQueue;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -10,6 +11,7 @@ import main.java.is.personal.Xcrypt.connection.Run;
 
 import javax.swing.SpringLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import java.awt.event.MouseAdapter;
@@ -31,8 +33,8 @@ import javax.swing.JFileChooser;
 
 public class UI {
 
-	private ArrayList<String> pathToFolder = new ArrayList<String>(); //Path to folder to encrypt again on exit
-	private ArrayList<String> authentication = new ArrayList<String>(); //Password and username 
+	private ArrayList<String> pathToFolder = new ArrayList<String>(); //Path to folder to encrypt again on exit		//Minor security hole! Fix when there is time
+	private ArrayList<String> authentication = new ArrayList<String>(); //Password and username 					//Security hole! Fix when there is time
 	private int Encrypt = 0;
 	private int Decrypt = 1;
 	private JFrame frmEncrypt;
@@ -75,12 +77,16 @@ public class UI {
 		
 		// Render main window
 		frmEncrypt = new JFrame();
-		frmEncrypt.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Tron\\Pictures\\Capture.PNG"));
-		frmEncrypt.setTitle("Encrypt");
+		frmEncrypt.setResizable(false);
+		frmEncrypt.setIconImage(Toolkit.getDefaultToolkit().getImage("img\\design\\Icon.png"));
+		frmEncrypt.setTitle("Xcrypt");
 		frmEncrypt.setBounds(100, 100, 420, 530);
 		frmEncrypt.setMinimumSize(new Dimension(425, 450));
+		frmEncrypt.setMaximumSize(new Dimension(420, 530));
 		frmEncrypt.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frmEncrypt.addWindowListener(new WindowAdapter() {
+			
+			//When x is pressed this function will run. If decrypt on exit was set and un and pw is correct then folder will be encrypted.
 	        @Override
 	        public void windowClosing(WindowEvent event) {
 	        	int authInt = 0;
@@ -266,18 +272,15 @@ public class UI {
 		textFieldUsername.setText("bjarki");
 		fieldPassword.setText("bjarki");
 		textFieldPath.setText("D:\\photos - Copy");
+		
+		JLabel BGImage = new JLabel("");
+		ImageIcon backgroundImage = new ImageIcon("img\\design\\bgImage.png");//this.getClass().getResource("/bgImage.png")).getImage();
+		BGImage.setIcon(backgroundImage);
+		springLayout.putConstraint(SpringLayout.NORTH, BGImage, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, BGImage, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(BGImage);
 
 
-		
-		
-		/* Multiple decription
-		JCheckBox chckbxNewCheckBox = new JCheckBox("Multiple decription");
-		chckbxNewCheckBox.setToolTipText("Decript even if file has already been decripted");
-		springLayout.putConstraint(SpringLayout.NORTH, chckbxNewCheckBox, 29, SpringLayout.SOUTH, passwordErrorLable);
-		springLayout.putConstraint(SpringLayout.WEST, chckbxNewCheckBox, 0, SpringLayout.WEST, pathLable);
-		frmEncrypt.getContentPane().add(chckbxNewCheckBox);
-		*/
-		
 		
 		/* Select path window
 		JButton btnFile = new JButton("File");
@@ -334,6 +337,8 @@ public class UI {
 	
 	private JRadioButton rdbtnEncrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
 		rdbtnEncryp = new JRadioButton("Encrypt");
+//		ImageIcon backgroundImage = new ImageIcon("img\\design\\RadioBtn.png");//this.getClass().getResource("/bgImage.png")).getImage();
+//		rdbtnEncryp.setBackground(); .setIcon(backgroundImage);
 		rdbtnEncryp.addMouseListener(new MouseAdapter() {
 			@SuppressWarnings("deprecation")
 			@Override

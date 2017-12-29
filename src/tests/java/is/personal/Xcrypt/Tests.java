@@ -61,12 +61,12 @@ public class Tests {
 	
 	private static boolean testLQimage() throws FileNotFoundException, IOException{
 		System.out.println("Testig LQ image");
-		return chechImgAfterXcryption("src\\tests\\images\\img\\LQ\\LQ1.png", 323123532);
+		return chechImgAfterXcryption("img\\test\\HQ\\HQ1.png", 323123532);
 	}
 	
 	private static boolean testHQimage() throws FileNotFoundException, IOException{
 		System.out.println("Testing HQ image");
-		return chechImgAfterXcryption("src\\tests\\images\\img\\HQ\\HQ1.png", 323123532);
+		return chechImgAfterXcryption("img\\test\\HQ\\HQ1.png", 323123532);
 	}
 	
 	private static boolean chechNameAfterXcryption(String name, long seed){
