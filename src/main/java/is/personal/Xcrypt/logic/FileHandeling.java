@@ -2,7 +2,6 @@ package main.java.is.personal.Xcrypt.logic;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,22 +33,21 @@ public class FileHandeling {
 		WhatToDo = Iaction;
 	}
 
-	public boolean run(JProgressBar progressBar, JLabel lblProsesslabel){
+	public char run(JProgressBar progressBar, JLabel lblProsesslabel){
 		try {
 			return runProgram(progressBar, lblProsesslabel);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			return 'f';
 		}
 	}
 	
-	private static boolean runProgram(JProgressBar progressBar, JLabel lblProsesslabel) throws FileNotFoundException, IOException {
+	private static char runProgram(JProgressBar progressBar, JLabel lblProsesslabel) throws IOException {
 		FileArrays arr = getFiles(path, new FileArrays());
-
 		int nrOfImages = arr.img.size();
 		if(nrOfImages == 0){
 			System.out.println("No images found");
-			return false;
+			return 'f';
 		}
 		
 		String nextFile = "";
@@ -116,13 +114,11 @@ public class FileHandeling {
 			}
 			
 			deleteImages(arr.oldFiles);
-			progressBar.setValue(100);
 			lblProsesslabel.setText(nrOfImages + "/" + nrOfImages);
-			//Return true if any file was changed, else false.
 			if(countSuccess > 0){
-				return true;
+				return 't';
 			}
-			return false;
+			return 'f';
 		}
 		catch(Exception e){
 			System.out.println("FileNotFoundException cught");
@@ -135,10 +131,10 @@ public class FileHandeling {
 	/*
 	 * When canceling Xcryption newly created files are deleted and all hidden files are unhidden
 	 */
-	private static boolean runFailure(ArrayList<String> newImages, ArrayList<String> oldImages){
+	private static char runFailure(ArrayList<String> newImages, ArrayList<String> oldImages){
 		deleteImages(newImages);
 		unhideFiles(oldImages);
-		return false;
+		return 'e';
 	}
 	
 	/*

@@ -1,5 +1,6 @@
 package main.java.is.personal.Xcrypt.connection;
 
+
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
@@ -18,7 +19,7 @@ public class Run {
 	}
 	
 	
-	public boolean run(JProgressBar progressBar, JLabel lblProsesslabel){
+	public char run(JProgressBar progressBar, JLabel lblProsesslabel) {
 		FileHandeling handleFiles = new FileHandeling(seed, path, action);
 		return handleFiles.run(progressBar, lblProsesslabel);
 	}

@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import java.awt.Window.Type;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Toolkit;
+
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.JButton;
@@ -16,22 +18,6 @@ public class ProcessRuningOnExit extends SwingWorker<Object, Object>{
 
 	private JFrame frmExit;
 	private JLabel secretLabel;
-
-	/**
-	 * Launch the application.
-	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					ProcessRuningOnExit window = new ProcessRuningOnExit();
-//					window.frmExit.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
 	
 
 	@Override
@@ -68,6 +54,7 @@ public class ProcessRuningOnExit extends SwingWorker<Object, Object>{
 		frmExit.setType(Type.POPUP);
 		frmExit.setBounds(100, 100, 420, 229);
 		frmExit.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frmExit.setIconImage(Toolkit.getDefaultToolkit().getImage("img\\design\\Icon.png"));
 		
 		JLabel lblXcryptionIsStill = new JLabel("Xcryption is still running!");
 		lblXcryptionIsStill.setHorizontalAlignment(SwingConstants.CENTER);
