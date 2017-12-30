@@ -1,7 +1,7 @@
 TODO
-* Dexryp on exit status window
-* Xcrypt subfolders chekbox
-* Xcrypt specific file tab
-* Fix design
+* Decrypt on exit -> Status window
+* Xcrypt subfolders -> chekbox
+* Xcrypt specific file -> tab
+* Fix visual design
 * Code refactor/Cleanup
 * Video?
