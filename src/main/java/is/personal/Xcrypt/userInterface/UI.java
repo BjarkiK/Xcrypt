@@ -36,12 +36,11 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.SwingConstants;
-import java.awt.event.MouseMotionAdapter;
 
 
 public class UI{
 
+	///Global variables only to make things easy to start with. Clean up!
 	private static final long serialVersionUID = 1L;
 	private ArrayList<String> pathToFolder = new ArrayList<String>(); //Path to folder to encrypt again on exit		//Minor security hole! Fix when there is time
 	private ArrayList<String> authentication = new ArrayList<String>(); //Password and username 					//Security hole! Fix when there is time
@@ -51,7 +50,7 @@ public class UI{
 	private JTextField textFieldPath, textFieldUsername;
 	private JPasswordField fieldPassword;
 	private JRadioButton rdbtnEncryp, rdbtnDecrypt;
-	private static JButton btnStart;
+	private JButton btnStart, btnFolderTab, btnFileTab;
 	private JCheckBox chckbxEncryptOnExit, chckbxInclSubfolders;
 	private JLabel BGImage, lblProsesslabel, secretLabel, startBtnImage, selectFolderImage;
 	private JProgressBar progressBar;
@@ -257,6 +256,68 @@ public class UI{
 		frmEncrypt.getContentPane().add(passwordErrorLabel);
 		passwordErrorLabel.hide();
 
+		JLabel FolderLabel = new JLabel("Folder");
+		FolderLabel.setFont(new Font("Cambria", Font.PLAIN, 13));
+		springLayout.putConstraint(SpringLayout.NORTH, FolderLabel, 18 , SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, FolderLabel, 151, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(FolderLabel);
+		
+		JLabel FileLabel = new JLabel("File");
+		FileLabel.setFont(new Font("Cambria", Font.PLAIN, 13));
+		springLayout.putConstraint(SpringLayout.NORTH, FileLabel, 18, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, FileLabel, 205, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(FileLabel);
+		
+		
+		JLabel tabsLabel = new JLabel("Folder");
+		setLabelImage(tabsLabel, "FolderTabSelected.png");
+		springLayout.putConstraint(SpringLayout.NORTH, tabsLabel, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, tabsLabel, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(tabsLabel);
+		
+		btnFolderTab = new JButton("");
+		btnFolderTab.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if(tabsLabel.getText().equals("File")){
+					setLabelImage(tabsLabel, "FolderTabSelected.png");
+					tabsLabel.setText("Folder");
+					springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 12, SpringLayout.NORTH, frmEncrypt.getContentPane());
+					springLayout.putConstraint(SpringLayout.NORTH, btnFileTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
+					springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 199 , SpringLayout.WEST, frmEncrypt.getContentPane());
+					springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 199, SpringLayout.WEST, frmEncrypt.getContentPane());
+					
+				}
+			}
+		});
+		disableBackground(btnFolderTab);
+		springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 12, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, btnFolderTab, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, btnFolderTab, 140, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 199 , SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(btnFolderTab);
+		
+		btnFileTab = new JButton("");
+		btnFileTab.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(tabsLabel.getText().equals("Folder")){
+					setLabelImage(tabsLabel, "FileTabSelected.png");
+					tabsLabel.setText("File");
+					springLayout.putConstraint(SpringLayout.NORTH, btnFileTab, 12, SpringLayout.NORTH, frmEncrypt.getContentPane());
+					springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
+					springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 187 , SpringLayout.WEST, frmEncrypt.getContentPane());
+					springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 187, SpringLayout.WEST, frmEncrypt.getContentPane());
+				}
+			}
+		});
+		disableBackground(btnFileTab);
+		springLayout.putConstraint(SpringLayout.NORTH, btnFileTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.SOUTH, btnFileTab, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 199, SpringLayout.WEST, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, btnFileTab, 246, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(btnFileTab);
+		
 		
 		
 		secretLabel = new JLabel("");
@@ -434,8 +495,6 @@ public class UI{
 		springLayout.putConstraint(SpringLayout.NORTH, BGImage, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, BGImage, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(BGImage);
-		
-
 	
 	}
 
