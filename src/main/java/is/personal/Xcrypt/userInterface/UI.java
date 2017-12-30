@@ -52,7 +52,7 @@ public class UI{
 	private JPasswordField fieldPassword;
 	private JRadioButton rdbtnEncryp, rdbtnDecrypt;
 	private static JButton btnStart;
-	private JCheckBox chckbxEncryptOnExit;
+	private JCheckBox chckbxEncryptOnExit, chckbxInclSubfolders;
 	private JLabel BGImage, lblProsesslabel, secretLabel, startBtnImage, selectFolderImage;
 	private JProgressBar progressBar;
 	private DynamicProgressBarExecute exProgressBar;
@@ -74,8 +74,8 @@ public class UI{
 			btnStart.setEnabled(false);
 			Run xCryption = new Run(password, username, path, action);
 			System.out.println("--------------------------------------------------------------------------------------------Xcoding");				
-			
-			char status = xCryption.run(progressBar, lblProsesslabel);
+			boolean inclSubfolders = chckbxInclSubfolders.isSelected();
+			char status = xCryption.run(progressBar, lblProsesslabel, inclSubfolders);
 			if(status == 't'){
 				if(rdbtnDecrypt.isSelected() && chckbxEncryptOnExit.isSelected()){
 					System.out.println("--------------------------------------------------------------------------------------------ADDING");
@@ -157,15 +157,23 @@ public class UI{
 		frmEncrypt.getContentPane().setLayout(springLayout);
 		
 		
+		chckbxInclSubfolders = new JCheckBox("Include subfolders");
+		chckbxInclSubfolders.setFont(new Font("Cambria", Font.PLAIN, 14));
+		disableBackground(chckbxInclSubfolders);
+		springLayout.putConstraint(SpringLayout.NORTH, chckbxInclSubfolders, 205, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, chckbxInclSubfolders, 22, SpringLayout.WEST, frmEncrypt.getContentPane());
+		frmEncrypt.getContentPane().add(chckbxInclSubfolders);
+		
 		chckbxEncryptOnExit = new JCheckBox("Encrypt on exit");
 		chckbxEncryptOnExit.setFont(new Font("Cambria", Font.PLAIN, 14));
 		disableBackground(chckbxEncryptOnExit);
 		chckbxEncryptOnExit.setSelected(true);
-		springLayout.putConstraint(SpringLayout.NORTH, chckbxEncryptOnExit, 215, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.NORTH, chckbxEncryptOnExit, 225, SpringLayout.NORTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, chckbxEncryptOnExit, 22, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(chckbxEncryptOnExit);
 		chckbxEncryptOnExit.hide();
 
+		
 		
 		// Radio buttons (En/Decript)
 		JRadioButton rdbtnEncrypt = rdbtnEncrypt(springLayout, chckbxEncryptOnExit);
@@ -440,9 +448,10 @@ public class UI{
     	int authInt = 0;
     	System.out.println("decrypting on exit " + pathToFolder.size());
     	for(int i = 0; i < pathToFolder.size(); i++){
+    		boolean inclSubfolders = chckbxInclSubfolders.isSelected();
     		frmEncrypt.hide();
     		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt);
-    		decryptOnExit.run(progressBar, lblProsesslabel);
+    		decryptOnExit.run(progressBar, lblProsesslabel, inclSubfolders);
     		authInt = authInt+2;
     	}      	
     	frmEncrypt.dispose();

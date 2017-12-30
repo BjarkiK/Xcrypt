@@ -33,17 +33,17 @@ public class FileHandeling {
 		WhatToDo = Iaction;
 	}
 
-	public char run(JProgressBar progressBar, JLabel lblProsesslabel){
+	public char run(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders){
 		try {
-			return runProgram(progressBar, lblProsesslabel);
+			return runProgram(progressBar, lblProsesslabel, inclSubfolders);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return 'f';
 		}
 	}
 	
-	private static char runProgram(JProgressBar progressBar, JLabel lblProsesslabel) throws IOException {
-		FileArrays arr = getFiles(path, new FileArrays());
+	private static char runProgram(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders) throws IOException {
+		FileArrays arr = getFiles(path, new FileArrays(), inclSubfolders);
 		int nrOfImages = arr.img.size();
 		if(nrOfImages == 0){
 			System.out.println("No images found");
@@ -105,7 +105,7 @@ public class FileHandeling {
 				arr.oldFiles.add(nextFile);
 				
 				updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
-				Thread.sleep(700);
+//				Thread.sleep(700);
 			}
 			
 			// If any file in folder was already encrypted
@@ -186,7 +186,7 @@ public class FileHandeling {
 	 * Takes in path to folder and adds all .jpg, .jpeg and .png t array. 
 	 * Returns that array
 	 */
-	private static FileArrays getFiles(String homeDirectory, FileArrays arr){	
+	private static FileArrays getFiles(String homeDirectory, FileArrays arr, boolean inclSubfolders){	
 		String type = "";
 		File folder = new File(homeDirectory);
 		File[] listOfFiles = folder.listFiles();
@@ -198,8 +198,10 @@ public class FileHandeling {
 			    	  arr.img.add(homeDirectory + "//" + listOfFiles[i].getName());
 		    	  }
 		      } else if (listOfFiles[i].isDirectory()) {
-		    	  arr.dir.add(homeDirectory + "//" + listOfFiles[i].getName()); //adding subfolder to array
-		    	  getFiles(homeDirectory + "//" + listOfFiles[i].getName(), arr);
+		    	  if(inclSubfolders == true){
+			    	  arr.dir.add(homeDirectory + "//" + listOfFiles[i].getName()); //adding subfolder to array
+			    	  getFiles(homeDirectory + "//" + listOfFiles[i].getName(), arr, inclSubfolders);
+		    	  }
 		      }
 		    }
 		    return arr;

@@ -19,9 +19,9 @@ public class Run {
 	}
 	
 	
-	public char run(JProgressBar progressBar, JLabel lblProsesslabel) {
+	public char run(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders) {
 		FileHandeling handleFiles = new FileHandeling(seed, path, action);
-		return handleFiles.run(progressBar, lblProsesslabel);
+		return handleFiles.run(progressBar, lblProsesslabel, inclSubfolders);
 	}
 	
 	private static long calcSeed(String password, String username){
