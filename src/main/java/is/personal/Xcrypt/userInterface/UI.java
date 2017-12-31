@@ -467,7 +467,7 @@ public class UI{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setLabelImage(selectFolderImage, "Empty.png");
-				selectPath();
+				selectPath(tabsLabel);
 			}
 			@Override
 			public void mouseEntered(MouseEvent arg0) {		
@@ -521,19 +521,23 @@ public class UI{
 	 * Select path to folder with JFileChooser
 	 */
 	@SuppressWarnings("deprecation")
-	private void selectPath(){
+	private void selectPath(JLabel tabLabel){
 		File setPath = new File(textFieldPath.getText());
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(setPath);
 		fileChooser.setDialogTitle("Select path");
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		fileChooser.setCurrentDirectory(setPath);
+		if(tabLabel.getText().equals("File")){
+			fileChooser.setDialogTitle("Select file");
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		}
 		int returnVal = fileChooser.showOpenDialog(frmEncrypt);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			System.out.println(fileChooser.getSelectedFile());
 			String selectedPath = fileChooser.getSelectedFile().toString();
-//		   System.out.println("You chose to open this file: " + fileChooser.getSelectedFile().getName()); // For specific file use this
-		   textFieldPath.setText(selectedPath);
-		   fileChooser.hide();
+//		   	System.out.println("You chose to open this file: " + fileChooser.getSelectedFile().getName()); // For specific file use this
+		  	textFieldPath.setText(selectedPath);
+		  	fileChooser.hide();
 		}
 	}
 	private JRadioButton rdbtnEncrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
