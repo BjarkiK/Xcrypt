@@ -26,11 +26,13 @@ public class FileHandeling {
 	private static long seed;
 	private static String path;
 	private static int WhatToDo, Encrypt = 0, Decrypt = 1;
+	private static String activeTab; //Xcrypt whole folder of one file
 
-	public FileHandeling(long Iseed, String Ipath, int Iaction){
+	public FileHandeling(long Iseed, String Ipath, int Iaction, String IactiveTab){
 		seed = Iseed;
 		path = Ipath;
 		WhatToDo = Iaction;
+		activeTab = IactiveTab;
 	}
 
 	public char run(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders){
@@ -187,10 +189,19 @@ public class FileHandeling {
 	 * Returns that array
 	 */
 	private static FileArrays getFiles(String homeDirectory, FileArrays arr, boolean inclSubfolders){	
+		System.out.println("Active tab: " + activeTab);
+		if(activeTab.equals("File")){
+			int fileIndex = homeDirectory.lastIndexOf("\\");
+			homeDirectory = homeDirectory.substring(0, fileIndex) + "//" + homeDirectory.substring(fileIndex+1, homeDirectory.length());
+			arr.img.add(homeDirectory);
+			System.out.println("One file: " + arr.img.get(0));
+			return arr;
+		}
+		System.out.println("Active tab is: FOLDER");
 		String type = "";
 		File folder = new File(homeDirectory);
 		File[] listOfFiles = folder.listFiles();
-
+		
 		for (int i = 0; i < listOfFiles.length; i++) {
 		      if (listOfFiles[i].isFile()) {
 		    	  type = getFileExtension(listOfFiles[i].toString());

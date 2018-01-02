@@ -8,19 +8,21 @@ import main.java.is.personal.Xcrypt.logic.FileHandeling;
 
 public class Run {
 
-	private static long seed;
-	private static String path;
-	private static int action;
+	private long seed;
+	private String path;
+	private int action;
+	private String activeTab; //Xcrypt whole folder of one file
 
-	public Run(String Ipassword, String Iusername, String Ipath, int Iaction) {
+	public Run(String Ipassword, String Iusername, String Ipath, int Iaction, String IactiveTab) {
 		seed = calcSeed(Ipassword, Iusername);
 		path = Ipath;
 		action = Iaction;
+		activeTab = IactiveTab;
 	}
 	
 	
 	public char run(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders) {
-		FileHandeling handleFiles = new FileHandeling(seed, path, action);
+		FileHandeling handleFiles = new FileHandeling(seed, path, action, activeTab);
 		return handleFiles.run(progressBar, lblProsesslabel, inclSubfolders);
 	}
 	

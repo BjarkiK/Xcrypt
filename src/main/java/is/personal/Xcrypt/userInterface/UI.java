@@ -35,6 +35,8 @@ import javax.swing.JFileChooser;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.event.ChangeEvent;
 
 
@@ -52,26 +54,27 @@ public class UI{
 	private JRadioButton rdbtnEncryp, rdbtnDecrypt;
 	private JButton btnStart, btnFolderTab, btnFileTab;
 	private JCheckBox chckbxEncryptOnExit, chckbxInclSubfolders;
-	private JLabel BGImage, lblProsesslabel, secretLabel, startBtnImage, selectFolderImage;
+	private JLabel BGImage, lblProsesslabel, secretLabel, startBtnImage, selectFolderImage, tabsLabel;
 	private JProgressBar progressBar;
 	private DynamicProgressBarExecute exProgressBar;
 	
 	
 	class DynamicProgressBarExecute extends SwingWorker<Object, Object>{
-		private String password, username, path;
+		private String password, username, path, activeTab;
 		private int action;
 		
-		DynamicProgressBarExecute(String pw, String un, String path, int action){
+		DynamicProgressBarExecute(String pw, String un, String path, int action, String activeTab){
 			this.password = pw;
 			this.username = un;
 			this.path = path;
 			this.action = action;
+			this.activeTab = activeTab;
 		}
 
 		@Override
 		protected Object doInBackground() throws Exception {
 			btnStart.setEnabled(false);
-			Run xCryption = new Run(password, username, path, action);
+			Run xCryption = new Run(password, username, path, action, activeTab);
 			System.out.println("--------------------------------------------------------------------------------------------Xcoding");				
 			boolean inclSubfolders = chckbxInclSubfolders.isSelected();
 			char status = xCryption.run(progressBar, lblProsesslabel, inclSubfolders);
@@ -163,7 +166,7 @@ public class UI{
 		springLayout.putConstraint(SpringLayout.WEST, chckbxInclSubfolders, 22, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(chckbxInclSubfolders);
 		
-		chckbxEncryptOnExit = new JCheckBox("Encrypt on exit");
+		chckbxEncryptOnExit = new JCheckBox("Encrypt folder on exit");
 		chckbxEncryptOnExit.setFont(new Font("Cambria", Font.PLAIN, 14));
 		disableBackground(chckbxEncryptOnExit);
 		chckbxEncryptOnExit.setSelected(true);
@@ -269,7 +272,7 @@ public class UI{
 		frmEncrypt.getContentPane().add(FileLabel);
 		
 		
-		JLabel tabsLabel = new JLabel("Folder");
+		tabsLabel = new JLabel("Folder");
 		setLabelImage(tabsLabel, "FolderTabSelected.png");
 		springLayout.putConstraint(SpringLayout.NORTH, tabsLabel, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, tabsLabel, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
@@ -280,13 +283,16 @@ public class UI{
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				if(tabsLabel.getText().equals("File")){
+					if(rdbtnDecrypt.isSelected()){
+						chckbxEncryptOnExit.show();
+					}
+					chckbxInclSubfolders.show();
 					setLabelImage(tabsLabel, "FolderTabSelected.png");
 					tabsLabel.setText("Folder");
 					springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 12, SpringLayout.NORTH, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.NORTH, btnFileTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 199 , SpringLayout.WEST, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 199, SpringLayout.WEST, frmEncrypt.getContentPane());
-					
 				}
 			}
 		});
@@ -308,6 +314,8 @@ public class UI{
 					springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 187 , SpringLayout.WEST, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 187, SpringLayout.WEST, frmEncrypt.getContentPane());
+					chckbxEncryptOnExit.hide();
+					chckbxInclSubfolders.hide();
 				}
 			}
 		});
@@ -429,7 +437,7 @@ public class UI{
 				}
 				
 				if(runProgram == true){
-					exProgressBar = new DynamicProgressBarExecute(password, username, path, action);
+					exProgressBar = new DynamicProgressBarExecute(password, username, path, action, tabsLabel.getText());
 					exProgressBar.execute();
 				}
 			}
@@ -509,7 +517,7 @@ public class UI{
     	for(int i = 0; i < pathToFolder.size(); i++){
     		boolean inclSubfolders = chckbxInclSubfolders.isSelected();
     		frmEncrypt.hide();
-    		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt);
+    		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt, tabsLabel.getText());
     		decryptOnExit.run(progressBar, lblProsesslabel, inclSubfolders);
     		authInt = authInt+2;
     	}      	
@@ -523,11 +531,17 @@ public class UI{
 	@SuppressWarnings("deprecation")
 	private void selectPath(JLabel tabLabel){
 		File setPath = new File(textFieldPath.getText());
+		if(!setPath.isDirectory()){
+			setPath = new File(textFieldPath.getText().substring(0, textFieldPath.getText().lastIndexOf("\\")));
+		}
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setAcceptAllFileFilterUsed(false);
 		fileChooser.setCurrentDirectory(setPath);
 		fileChooser.setDialogTitle("Select path");
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		if(tabLabel.getText().equals("File")){
+			FileFilter imageFilter = new FileNameExtensionFilter("Image files", "jpg", "png");
+			fileChooser.addChoosableFileFilter(imageFilter);
 			fileChooser.setDialogTitle("Select file");
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		}
@@ -535,7 +549,6 @@ public class UI{
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			System.out.println(fileChooser.getSelectedFile());
 			String selectedPath = fileChooser.getSelectedFile().toString();
-//		   	System.out.println("You chose to open this file: " + fileChooser.getSelectedFile().getName()); // For specific file use this
 		  	textFieldPath.setText(selectedPath);
 		  	fileChooser.hide();
 		}
@@ -566,7 +579,9 @@ public class UI{
 			@SuppressWarnings("deprecation")
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				chckbxEncryptOnExit.show();
+				if(tabsLabel.getText().equals("Folder")){
+					chckbxEncryptOnExit.show();	
+				}
 			}
 		});
 		springLayout.putConstraint(SpringLayout.NORTH, rdbtnDecrypt, 140, SpringLayout.NORTH, frmEncrypt.getContentPane());
