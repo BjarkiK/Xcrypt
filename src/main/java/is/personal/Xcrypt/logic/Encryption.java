@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
+
 import main.java.is.personal.Xcrypt.dataStructures.Pixel;
 
 public class Encryption {
@@ -30,6 +31,7 @@ public class Encryption {
 	    }
 		 return watermarkDecriptedFile(img);
 	}
+	
 	
 	
 	//Public function for checkIfAlreadyEncrypted(BufferedImage)

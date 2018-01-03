@@ -12,7 +12,6 @@ import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-
 class FileArrays{
 	ArrayList<String> img = new ArrayList<String>(); //Absolute path to files
 	ArrayList<String> dir = new ArrayList<String>(); //All sub directories in folder
@@ -79,6 +78,12 @@ public class FileHandeling {
 				    	updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
 				    	continue;
 				    }
+				    if(nextFile.endsWith(".jpg")){
+				    	System.err.println("CONVERTING");
+				    	BufferedImage newImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				    	newImage.getGraphics().drawImage(img, 0, 0, null);
+				    	img = newImage;
+				    }
 				    
 					img = encrypt.encryptImage(img, seed);
 					outputFile = encrypt.encryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
@@ -107,7 +112,7 @@ public class FileHandeling {
 				arr.oldFiles.add(nextFile);
 				
 				updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
-//				Thread.sleep(700);
+//				Thread.sleep(7000);
 			}
 			
 			// If any file in folder was already encrypted
@@ -217,7 +222,6 @@ public class FileHandeling {
 		    }
 		    return arr;
 	}
-	
 	
 
 	
