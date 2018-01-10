@@ -97,7 +97,7 @@ public class FileHandeling {
 						continue;
 					}
 					img = decrypt.decryptImage(img, seed);
-					outputFile = decrypt.decryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
+					outputFile = decrypt.decryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed)  + ".png";
 					countSuccess++;
 				}
 				arr.newFiles.add(outputFile);

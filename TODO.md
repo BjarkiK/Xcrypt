@@ -1,4 +1,5 @@
 TODO
+* Something wrong with imageWatermarking. FIX
 * Decrypt on exit -> Status window
 * Xcrypt specific file -> tab
 	Make sure the right filechooser is opened.
@@ -7,4 +8,5 @@ TODO
 * Xcrypt folder names
 * Fix visual design
 * Code refactor/Cleanup
+* Explore ways to make image Xcryption faster
 * Video?

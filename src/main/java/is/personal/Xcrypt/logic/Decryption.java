@@ -91,54 +91,65 @@ public class Decryption {
 		
 		String newName = "";
 		int castInt = 0;
-		int tmpCastInt = 0;
 		int random = 0;
 		char castBackChar = ' ';
+		String returnHandler = "";
 		
 		for(int i = 0; i < name.length(); i++){
 			
 			random = random(rand, 32, 254);
+						
+			returnHandler = fixChar(castInt, name, i);
+			castInt = returnHandler.charAt(0);
 			
-			//If current i is not the last char in word and the next char = ÿ (255) then
-			// char = char - 6 and ÿ is skipped
-			if(i != name.length()-1 && name.charAt(i+1) == (char) 255){
-				castInt = name.charAt(i) - 6;
-//				System.out.print("Character: " + name.charAt(i) + " - 6 " + " castInt: " + (int) name.charAt(i) + " Random: " + random);
-				i++;
-			}
-			else{
-				castInt = name.charAt(i);
-//				System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
-			}
-			tmpCastInt = castInt;
+			i = Integer.parseInt(returnHandler.substring(1, returnHandler.length()));
 			
-			if(castInt - random < 32){ //If mod 254 in encrypt
-				castInt = castInt - random + 254 - 32;
-
-				if(castInt < 32){
-					castInt = castInt + 32;
-				}
-			}
-			else{
-				castInt = castInt - random;
+			castInt = castInt - random;
+			if(castInt < 32) {
+				castInt = castInt + 254;
 			}
 			
-			if(tmpCastInt == 255){
-				i++;
-				castInt = name.charAt(i) - 6;
-			}
-
+//			System.out.print("Decryption -> Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random + " castChar: " + (char)castInt + " castInt: " + castInt);
+//			System.out.println("");
 			castBackChar = (char) castInt;
-//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
 
 			newName = newName + castBackChar;
-//			System.out.println("");
 		}
 		
 		newName = newName.toLowerCase();
 		return path + newName;
 	}
 	
+	/*
+	 *Fixes nextCharInt if charInt = 255
+	 *if nextCharInt = 255 then nextNextCharInt index shifts -32 - 6
+	 *if nextCharInt is legal index is shift -32
+	 *else nextCharInt index shift -6
+	 */
+	private String fixChar(int castInt, String name, int index) {
+		castInt = name.charAt(index);
+		if(castInt == 255) {
+			index++;
+			int nextCharInt = name.charAt(index);
+			if(nextCharInt == 255) {
+				index++;
+				if(name.charAt(index) == 255) {
+					index++;
+					castInt = name.charAt(index) - 32 - 6;
+				}
+				else {
+					castInt = name.charAt(index) - 32;
+				}
+
+			}
+			else {
+				castInt = name.charAt(index) - 6;
+			}
+		}
+		
+		return (char) castInt + "" + index;
+	}
+
 	
 	/*
 	 * Returns the index of the start of file name

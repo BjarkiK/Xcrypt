@@ -47,9 +47,12 @@ public class Tests {
 	private static boolean testName() throws FileNotFoundException, IOException{
 		System.out.println("Testing filenames");
 		String[] words = {"MikKi Mú'UÚS", "ÖÐÞ'ÆæÆdÐP", "Stofa", "Mamma Mía", "Litla Herbergi", "Ýta", "DsdasDSDSD$C=)(&%", "Ö=Ö)(YGHCVGGVBNDKSD)87654534%&(D)JHNBC", 
-							"kjhgyfds879a9d&()=mdnsua'''Þ,mh887667H", "154=)(ui8908UHNMJhGCFVbnjmkljbhvdgc'Þ+Þ'Æ;LM;Þþæ.,lmk,."};
-		for(int i = 0; i < 1000; i++){
+							"kjhgyfds879a9d&()=mdnsua'''Þ,mh887667H", "154=)(ui8908UHNMJhGCFVbnjmkljbhvdgc'Þ+Þ'Æ;LM;Þþæ.,lmk,.",
+							"when the", "execution", "of PL on D", "by M", "terminates,", "and", "unde", "ned,", "when",
+							"it", "does", "not", "terminate.", "þþþþþþþþþþþþþþþþþþþþþþþþþþþþþþþþþ", "!!!!!!!!!!!!!!!!!!!!!"};
+		for(int i = 0; i < 5000; i++){
 			for(int y = 0; y < words.length; y++){
+//				System.out.println(i + ":" + y);
 				if(!chechNameAfterXcryption(words[y], i)){
 					return false;
 				}
@@ -71,9 +74,12 @@ public class Tests {
 	
 	private static boolean chechNameAfterXcryption(String name, long seed){
 		String newName = En.encryptName(name, seed);
+//		System.out.println(newName);
 		newName = De.decryptName(newName, seed);
+//		System.out.println("");
 		name = name.toLowerCase();
 //		System.out.println(name + " : " + newName);
+//		System.out.println("--------------------------------------------------------------------------------------");
 		return name.equals(newName);
 	}
 	private static boolean chechImgAfterXcryption(String originalPath, long seed) throws FileNotFoundException, IOException{

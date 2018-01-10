@@ -87,8 +87,7 @@ public class Encryption {
 		
 		return img;
 	}
-	
-	
+
 	
 	public String encryptName(String name, long seed){
 		Random rand = new Random(seed); //New random with seed made from username and password
@@ -98,64 +97,58 @@ public class Encryption {
 		String path = name.substring(0, indexOfFile);
 		name = name.substring(indexOfFile, name.length()).toLowerCase();
 		
-		String newName = "";
+		String newName = "";//watermarkFileName(img);
 		int random = 0;
 		int castInt = 0;
-		int tmpCastInt = 0;
-		char castBackChar = ' ';
 		for(int i = 0; i < name.length(); i++){
 
 			random = random(rand, 32, 254);
 			castInt = name.charAt(i);
 			
 			if(castInt == 255){castInt = 253;}		//Change ÿ (255) to ý (253)
-			else if(castInt == 180){castInt = 39;} 	//Change ´(180) to '(39)
-			else if(castInt == 96){castInt = 39;} 	//Change `(96) to '(39)
 			
-			
-			
-//			System.out.print("Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random);
+			castInt = castInt + random ;
+			if(castInt > 254) {
+				castInt = castInt - 254;
+			}
 
-			
-			castInt = (castInt + random)%254;
 			
 			if(castInt < 32){
 				castInt = castInt + 32;
-			}
-			
-			tmpCastInt = castInt;
-			if(castInt == 34){castInt = 255;}		//Change characters to allowed in file name to ÿ (255)
-			else if(castInt == 42){castInt = 255;}
-			else if(castInt == 47){castInt = 255;}
-			else if(castInt == 58){castInt = 255;}
-			else if(castInt == 60){castInt = 255;}
-			else if(castInt == 62){castInt = 255;}
-			else if(castInt == 63){castInt = 255;}
-			else if(castInt == 92){castInt = 255;} 
-			else if(castInt == 124){castInt = 255;}
-			else if(castInt == 127){castInt = 255;}
-			else if(castInt == 160){castInt = 255;}
-			else if(castInt == 180){castInt = 255;}
-			
-			/*
-			 * If castInt != tmp2CastInt then castInt = 255 (ÿ)
-			 * If castInt = 255 then tmp2CastInt (Original castInt + random) + 6 and the next char on the right is ÿ.
-			 * When decrypted ten 6 is subtracted from char and ÿ is skipped.
-			 */
-			if(castInt != tmpCastInt){ //If final castInt ends as 255 (char is forbidden in file name)
-				tmpCastInt = tmpCastInt + 6;
-				castBackChar = (char) tmpCastInt; //Move forbidden v-char 6 seats higher in the ascii table
-				newName = newName + castBackChar;
+				newName = newName + (char) 255;
 				newName = newName + (char) 255;
 			}
-			else{
-				castBackChar = (char) castInt;
-				newName = newName + castBackChar;
-			}
-//			System.out.print(" CastInt: " + castInt + " castBackChar: " + castBackChar);
-//			System.out.println("");
+			
+//			System.out.println("Excryption -> Character: " + name.charAt(i) + " castInt: " + (int) name.charAt(i) + " Random: " + random + " castChar: " + (char)castInt + " castInt: " + castInt);
+			
+			newName = newName + handleIllegalChar(castInt);
+
 		}
 		return path + newName;
+	}
+
+	
+	private String handleIllegalChar(int charInt) {
+		String rtnString = "";
+		char character = (char) charInt;
+		if(checkIfCharIsLegal(character) == false) {
+			char panChar = (char) ((int) character + 6);
+			rtnString = (char)255 + "" + panChar;
+		}
+		else {
+			rtnString = character + "";
+		}
+		return rtnString;
+	}
+	
+	private boolean checkIfCharIsLegal(char character) {
+		int[] illegalChars = {34, 42, 47, 58, 60, 62, 63, 92, 124, 127, 160, 180};
+		for(int i = 0; i < illegalChars.length; i++) {
+			if(character == illegalChars[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	

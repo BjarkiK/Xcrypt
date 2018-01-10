@@ -145,7 +145,7 @@ public class UI{
 	        public void windowClosing(WindowEvent event) {
         		frmEncrypt.enable(false);
 	        	int progressBarStatus = progressBar.getValue();
-	        	if(progressBarStatus > 0 && progressBarStatus < 100){
+	        	if(progressBarStatus > 0 && progressBarStatus < 100 && progressBar.getForeground() == Color.GREEN){
 	        		System.out.println("Xcryption in prosess. Can't close");
 	        		ProcessRuningOnExit warningWindow = new ProcessRuningOnExit(secretLabel);
 	        		warningWindow.execute();
@@ -456,7 +456,7 @@ public class UI{
 		
 		textFieldUsername.setText("bjarki");
 		fieldPassword.setText("bjarki");
-		textFieldPath.setText("D:\\photos - Copy");
+		textFieldPath.setText("E:\\Xcrypt\\photos - Copy");
 		
 		JLabel usernameLabel = new JLabel("Enter username");
 		usernameLabel.setFont(new Font("Cambria", Font.BOLD, 14));
