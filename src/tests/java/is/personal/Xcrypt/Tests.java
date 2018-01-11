@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
+import java.util.Random;
 
 import main.java.is.personal.Xcrypt.dataStructures.Pixel;
 import main.java.is.personal.Xcrypt.logic.Decryption;
@@ -28,6 +30,7 @@ public class Tests {
 	}
 	
 	public static boolean runTests() throws FileNotFoundException, IOException{
+		bruteForceSeed();
 		if(testName() == false){
 			System.err.println("testName failed");
 			return false;
@@ -74,12 +77,8 @@ public class Tests {
 	
 	private static boolean chechNameAfterXcryption(String name, long seed){
 		String newName = En.encryptName(name, seed);
-//		System.out.println(newName);
 		newName = De.decryptName(newName, seed);
-//		System.out.println("");
 		name = name.toLowerCase();
-//		System.out.println(name + " : " + newName);
-//		System.out.println("--------------------------------------------------------------------------------------");
 		return name.equals(newName);
 	}
 	private static boolean chechImgAfterXcryption(String originalPath, long seed) throws FileNotFoundException, IOException{
@@ -89,8 +88,14 @@ public class Tests {
 	    BufferedImage  originalImg = FileHandeling.readImage(f, originalPath);
 	    BufferedImage testImg = FileHandeling.readImage(f, originalPath);
 
+		long startTime = new Date().getTime();
 		testImg = En.encryptImage(testImg, seed);
+		long endTime = new Date().getTime();
+		System.out.println("Encryption time: " + (endTime - startTime) + " ms"); 
+		startTime = new Date().getTime();
 		testImg = De.decryptImage(testImg, seed);
+		endTime = new Date().getTime();
+		System.out.println("Decryption time: " + (endTime - startTime) + " ms"); 
 		
 		return compareTwoImages(originalImg, testImg);
 	}
@@ -112,6 +117,55 @@ public class Tests {
 			}
 		}
 		return true;
+	}
+	
+	
+	
+	/*
+	 * 1.000.000 lookups takes 1,019s so 2147483647 lookups would 
+	 * take approximately 21882s or approximately 6 hours. 
+	 * That is way too fast!
+	 * How someone could use this to quickly find username and password
+	 * 1. Find any target file they want to decrtypt by brute force
+	 * 2. Copy target file name
+	 * 3. Create very small image file and encrypt with any username and password. 
+	 * 4. Rename the newly decrypted small image with the name of target file.
+	 * 5. Input username and password so they create increasing seed
+	 * *The one trying to brute force the seed probably would have to know how the program is implemented.
+	 * 
+	 * What to do about this.
+	 * Not use the same seed for name and file xcryption
+	 * How?
+	 * 1. Use only password/username as seed for name (Scramble somehow)
+	 * 	- By doing this, even though the file name is decrypted successfully
+	 * 	  the seed for image decryption is (most likely) far from being correct.
+	 */
+	private static void bruteForceSeed(){
+		long startTime = new Date().getTime();
+		String stringToFind = "TheInput";
+		String encryptedString = En.encryptName(stringToFind, random());
+		for(long seed = 0; seed < 2147483647; seed++) {
+			if(seed == 1000000) {
+				System.out.println("BOOM");
+				long endTime = new Date().getTime();
+				System.out.println("It took " + (endTime - startTime) + " ms to " + seed);
+			}
+			if(De.decryptName(encryptedString, seed).equals(stringToFind)) {
+				long endTime = new Date().getTime();
+				System.out.println("It took " + (endTime - startTime) + " ms to find the seed: " + seed);
+				return;
+			}
+		}
+		long endTime = new Date().getTime();
+		System.out.println("It took " + (endTime - startTime) + " ms");
+		
+	}
+	
+	private static int random() {
+		int low = 1;
+		int high = 2147483647;
+		Random rand = new Random(55);
+		return rand.nextInt(high-low) + low;
 	}
 
 }

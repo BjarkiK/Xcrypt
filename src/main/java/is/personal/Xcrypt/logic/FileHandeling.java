@@ -25,7 +25,7 @@ public class FileHandeling {
 	private static long seed;
 	private static String path;
 	private static int WhatToDo, Encrypt = 0, Decrypt = 1;
-	private static String activeTab; //Xcrypt whole folder of one file
+	private static String activeTab; //Xcrypt whole folder or one file
 
 	public FileHandeling(long Iseed, String Ipath, int Iaction, String IactiveTab){
 		seed = Iseed;
@@ -46,13 +46,13 @@ public class FileHandeling {
 	private static char runProgram(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders) throws IOException {
 		FileArrays arr = getFiles(path, new FileArrays(), inclSubfolders);
 		int nrOfImages = arr.img.size();
+		
 		if(nrOfImages == 0){
 			System.out.println("No images found");
 			return 'f';
 		}
 		
 		String nextFile = "";
-		String inputFile = "";
 		String outputFile = "";
 	    File f = null;
 	    BufferedImage img = null;
@@ -62,15 +62,11 @@ public class FileHandeling {
 			int countSuccess = 0;
 			for(int i = 0; i < arr.img.size(); i++){
 				nextFile = arr.img.get(i);
+				img = readImage(f, nextFile);
 				System.out.println("Currend file: " + nextFile);
-				
-				inputFile = nextFile;
-				
-				img = readImage(f, inputFile);
 				
 				if(WhatToDo == Encrypt){
 					Encryption encrypt = new Encryption();
-				    
 				    //If image already decrypted add path to array
 				    if(encrypt.isAlreadyEncrypted(img) == true){
 				    	System.out.println("Already encrypted");
@@ -80,9 +76,7 @@ public class FileHandeling {
 				    }
 				    if(nextFile.endsWith(".jpg")){
 				    	System.err.println("CONVERTING");
-				    	BufferedImage newImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				    	newImage.getGraphics().drawImage(img, 0, 0, null);
-				    	img = newImage;
+				    	img = convertImageFromRGBtoARGB(img);
 				    }
 				    
 					img = encrypt.encryptImage(img, seed);
@@ -107,12 +101,10 @@ public class FileHandeling {
 	
 				writeImage(img , f, outputFile);
 				
-				Path file = Paths.get(nextFile);
-				Files.setAttribute(file, "dos:hidden", true);
+				hideFile(nextFile);
 				arr.oldFiles.add(nextFile);
 				
 				updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
-//				Thread.sleep(7000);
 			}
 			
 			// If any file in folder was already encrypted
@@ -122,6 +114,7 @@ public class FileHandeling {
 			
 			deleteImages(arr.oldFiles);
 			lblProsesslabel.setText(nrOfImages + "/" + nrOfImages);
+			
 			if(countSuccess > 0){
 				return 't';
 			}
@@ -135,6 +128,16 @@ public class FileHandeling {
 		
 	}
 	
+	private static void hideFile(String file) throws IOException {
+		Path filePath = Paths.get(file);
+		Files.setAttribute(filePath, "dos:hidden", true);
+	}
+	
+	private static BufferedImage convertImageFromRGBtoARGB(BufferedImage img) {
+		BufferedImage newImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    	newImage.getGraphics().drawImage(img, 0, 0, null);
+    	return newImage;
+	}
 	/*
 	 * When canceling Xcryption newly created files are deleted and all hidden files are unhidden
 	 */
@@ -202,7 +205,6 @@ public class FileHandeling {
 			System.out.println("One file: " + arr.img.get(0));
 			return arr;
 		}
-		System.out.println("Active tab is: FOLDER");
 		String type = "";
 		File folder = new File(homeDirectory);
 		File[] listOfFiles = folder.listFiles();

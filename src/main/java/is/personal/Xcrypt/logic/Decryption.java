@@ -20,21 +20,20 @@ public class Decryption {
 	public BufferedImage decryptImage(BufferedImage img, long seed) throws FileNotFoundException, IOException{
 		
 	    Random rand = new Random(seed);
-	    int rand1 = 0;
-	    int rand2 = 0;
-	    int rand3 = 0;
+	    int randr = 0;
+	    int randg = 0;
+	    int randb = 0;
 		for(int x = 0; x < img.getWidth(); x++){
 	    	 for(int y = 0; y < img.getHeight(); y++){
-	    		 
 	    		  
 	    		 Pixel p = new Pixel(img.getRGB(x, y));
 	    		 
-	    		 rand1 = random(rand, 0, 256);
-	    		 rand2 = random(rand, 0, 256);
-	    		 rand3 = random(rand, 0, 256);
-	    		 p.r = (p.r - rand1);
-	    		 p.g = (p.g - rand2);
-	    		 p.b = (p.b - rand3);
+	    		 randr = random(rand, 0, 256);
+	    		 randg = random(rand, 0, 256);
+	    		 randb = random(rand, 0, 256);
+	    		 p.r = (p.r - randr);
+	    		 p.g = (p.g - randg);
+	    		 p.b = (p.b - randb);
 	    		 p.a = 255;
 	    		 
 	    		 if(p.r < 0){
@@ -52,6 +51,7 @@ public class Decryption {
 	    }
 		 return img;
 	}
+
 	
 	/*
 	 * public function for checkIfEncrypted(BufferedImage)

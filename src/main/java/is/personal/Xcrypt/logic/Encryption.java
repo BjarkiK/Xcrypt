@@ -31,8 +31,7 @@ public class Encryption {
 	    }
 		 return watermarkDecriptedFile(img);
 	}
-	
-	
+
 	
 	//Public function for checkIfAlreadyEncrypted(BufferedImage)
 	public boolean isAlreadyEncrypted(BufferedImage img){
@@ -84,6 +83,10 @@ public class Encryption {
 		img.setRGB(0, height-1, (p3.a<<24) | (p3.r<<16) | (p3.g<<8) | p3.b);
 		img.setRGB(width-1, height-1, (p4.a<<24) | (p4.r<<16) | (p4.g<<8) | p4.b);
 		img.setRGB((width-1)/2, (height-1)/2, (p5.a<<24) | (p5.r<<16) | (p5.g<<8) | p5.b);
+		
+		if(checkIfAlreadyEncrypted(img) == false) {
+			System.out.println("WARNING! ImageWatermarking not successfull");
+		}
 		
 		return img;
 	}
