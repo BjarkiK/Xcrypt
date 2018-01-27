@@ -127,6 +127,11 @@ public class UI{
 	 */
 	@SuppressWarnings("deprecation")
 	private void initialize() throws IOException {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		double screenWidth = screenSize.getWidth();
+		double screenHeight = screenSize.getHeight();
+		double frameXPos = screenWidth/2 - 420/2;
+		double frameYPos = screenHeight/2 - 530/2;
 		
 		// Render main window
 		frmEncrypt = new JFrame();;
@@ -134,9 +139,7 @@ public class UI{
 		frmEncrypt.setResizable(false);
 		frmEncrypt.setIconImage(Toolkit.getDefaultToolkit().getImage("img\\design\\Icon.png"));
 		frmEncrypt.setTitle("Xcrypt");
-		frmEncrypt.setBounds(100, 100, 420, 530);
-		frmEncrypt.setMinimumSize(new Dimension(425, 450));
-		frmEncrypt.setMaximumSize(new Dimension(420, 530));
+		frmEncrypt.setBounds((int)frameXPos, (int)frameYPos, 420, 530);
 		frmEncrypt.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frmEncrypt.addWindowListener(new WindowAdapter() {
 			

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Random;
 
+import main.java.is.personal.Xcrypt.dataStructures.DecryptReturn;
 import main.java.is.personal.Xcrypt.dataStructures.Pixel;
 import main.java.is.personal.Xcrypt.logic.Decryption;
 import main.java.is.personal.Xcrypt.logic.Encryption;
@@ -43,6 +44,14 @@ public class Tests {
 			System.err.println("testHQimage failed");
 			return false;
 		}
+		if(testLQimageDoubleXcryption() == false){
+			System.err.println("testLQimageDoubleXcryption failed");
+			return false;
+		}
+		if(testHQimageDoubleXcryption() == false){
+			System.err.println("testHQimageDoubleXcryption failed");
+			return false;
+		}
 		return true;
 	}
 	
@@ -75,6 +84,16 @@ public class Tests {
 		return chechImgAfterXcryption("img\\test\\HQ\\HQ1.png", 323123532);
 	}
 	
+	private static boolean testLQimageDoubleXcryption() throws FileNotFoundException, IOException{
+		System.out.println("Testig LQ image DoubleXcryption");
+		return chechImgAfterDoubleXcryption("img\\test\\HQ\\HQ1.png", 323123532);
+	}
+	
+	private static boolean testHQimageDoubleXcryption() throws FileNotFoundException, IOException{
+		System.out.println("Testing HQ image DoubleXcryption");
+		return chechImgAfterDoubleXcryption("img\\test\\HQ\\HQ1.png", 323123532);
+	}
+	
 	private static boolean chechNameAfterXcryption(String name, long seed){
 		String newName = En.encryptName(name, seed);
 		newName = De.decryptName(newName, seed);
@@ -84,21 +103,37 @@ public class Tests {
 	private static boolean chechImgAfterXcryption(String originalPath, long seed) throws FileNotFoundException, IOException{
 		
 		//Encrypt original image and Decrypt it again.
-		File f = null;
-	    BufferedImage  originalImg = FileHandeling.readImage(f, originalPath);
-	    BufferedImage testImg = FileHandeling.readImage(f, originalPath);
-
-		long startTime = new Date().getTime();
-		testImg = En.encryptImage(testImg, seed);
-		long endTime = new Date().getTime();
-		System.out.println("Encryption time: " + (endTime - startTime) + " ms"); 
-		startTime = new Date().getTime();
-		testImg = De.decryptImage(testImg, seed);
-		endTime = new Date().getTime();
-		System.out.println("Decryption time: " + (endTime - startTime) + " ms"); 
+		BufferedImage  originalImg = getImage(originalPath);
+	     
+	    DecryptReturn testImg = En.encryptImage(originalImg, seed);
+	    if(testImg.decrpted == false) {
+	    	return false;
+	    }
+		testImg.image = De.decryptImage(testImg.image, seed);
 		
-		return compareTwoImages(originalImg, testImg);
+		return compareTwoImages(originalImg, testImg.image);
 	}
+	
+private static boolean chechImgAfterDoubleXcryption(String originalPath, long seed) throws FileNotFoundException, IOException{
+		
+		//Encrypt original image and Decrypt it again.
+	    BufferedImage  originalImg = getImage(originalPath);
+
+	    DecryptReturn testImg = En.encryptImage(originalImg, seed);
+	    if(testImg.decrpted == false) {
+	    	return false;
+	    }
+		testImg = En.encryptImage(testImg.image, seed);
+	    if(testImg.decrpted == false) {
+	    	return false;
+	    }
+		testImg.image = De.decryptImage(testImg.image, seed);
+		testImg.image = De.decryptImage(testImg.image, seed);
+		
+		return compareTwoImages(originalImg, testImg.image);
+	}
+
+	
 	
 	private static boolean compareTwoImages(BufferedImage original, BufferedImage test){
 		if(original.getHeight() != test.getHeight() || original.getWidth() != test.getWidth()){
@@ -112,11 +147,30 @@ public class Tests {
 				
 				if(oP.a != tP.a || oP.r != tP.r || oP.g != tP.g || oP.b != tP.b){
 					System.out.println("Pixel not the same");
+					System.out.println(oP.a + ":" + oP.r + ":" + oP.g + ":" + oP.b);
+					System.out.println(tP.a + ":" + tP.r + ":" + tP.g + ":" + tP.b);
 					return false;
 				}
 			}
 		}
 		return true;
+	}
+	
+	private static BufferedImage getImage(String originalPath) {
+		final int TYPE_INT_ARGB = 2;
+		File f = null;
+	    BufferedImage  originalImg = FileHandeling.readImage(f, originalPath);
+	    if(originalImg.getType() != TYPE_INT_ARGB){
+	    	originalImg = convertImageFromRGBtoARGB(originalImg);
+	    }
+	    
+	    return originalImg;
+	}
+	
+	private static BufferedImage convertImageFromRGBtoARGB(BufferedImage img) {
+		BufferedImage newImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    	newImage.getGraphics().drawImage(img, 0, 0, null);
+    	return newImage;
 	}
 	
 	
@@ -145,10 +199,15 @@ public class Tests {
 		String stringToFind = "TheInput";
 		String encryptedString = En.encryptName(stringToFind, random());
 		for(long seed = 0; seed < 2147483647; seed++) {
-			if(seed == 1000000) {
-				System.out.println("BOOM");
+			if(seed == 10000000) {
 				long endTime = new Date().getTime();
-				System.out.println("It took " + (endTime - startTime) + " ms to " + seed);
+				long totalTimeMS =  2147483647/seed * (endTime - startTime);
+				long totalTimeS =  totalTimeMS/1000;
+				long totalTimeM =  totalTimeS/60;
+				
+				System.out.println("It took " + (endTime - startTime) + " ms to go throug " + seed + " loops");
+				System.out.println("So it would take " +  totalTimeM + " min, " +  totalTimeS + " sec or " +  totalTimeMS + " ms to loop through all 2147483647 possibilities");
+				
 			}
 			if(De.decryptName(encryptedString, seed).equals(stringToFind)) {
 				long endTime = new Date().getTime();
@@ -157,7 +216,7 @@ public class Tests {
 			}
 		}
 		long endTime = new Date().getTime();
-		System.out.println("It took " + (endTime - startTime) + " ms");
+		System.out.println("BruteForce took " + (endTime - startTime) + " ms");
 		
 	}
 	

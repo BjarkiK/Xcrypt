@@ -12,13 +12,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-class FileArrays{
-	ArrayList<String> img = new ArrayList<String>(); //Absolute path to files
-	ArrayList<String> dir = new ArrayList<String>(); //All sub directories in folder
-	ArrayList<String> alreadyEncr = new ArrayList<String>(); //Files in folder that are already encrypted
-	ArrayList<String> oldFiles = new ArrayList<String>(); //Old files being handeld
-	ArrayList<String> newFiles = new ArrayList<String>(); //Newly xcrypted files
-}
+import main.java.is.personal.Xcrypt.dataStructures.DecryptReturn;
+import main.java.is.personal.Xcrypt.dataStructures.FileArrays;
+
 
 public class FileHandeling {
 
@@ -27,6 +23,13 @@ public class FileHandeling {
 	private static int WhatToDo, Encrypt = 0, Decrypt = 1;
 	private static String activeTab; //Xcrypt whole folder or one file
 
+	/*
+	 * Constructor
+	 * Seed is the long number that is used to generate the random numbers
+	 * path is the path to the folder going to be xcrypted
+	 * WhatToDo is whether to decrypt or encrypt
+	 * activeTab is whether to xcrypt whole folder(s) or single file
+	 */
 	public FileHandeling(long Iseed, String Ipath, int Iaction, String IactiveTab){
 		seed = Iseed;
 		path = Ipath;
@@ -34,6 +37,9 @@ public class FileHandeling {
 		activeTab = IactiveTab;
 	}
 
+	/*
+	 * Simply a function to start the xcryption
+	 */
 	public char run(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders){
 		try {
 			return runProgram(progressBar, lblProsesslabel, inclSubfolders);
@@ -43,6 +49,9 @@ public class FileHandeling {
 		}
 	}
 	
+	/*
+	 * Just a way to big function that does way to much!
+	 */
 	private static char runProgram(JProgressBar progressBar, JLabel lblProsesslabel, boolean inclSubfolders) throws IOException {
 		FileArrays arr = getFiles(path, new FileArrays(), inclSubfolders);
 		int nrOfImages = arr.img.size();
@@ -74,12 +83,12 @@ public class FileHandeling {
 				    	updateJFrame(i, nrOfImages, progressBar, lblProsesslabel);
 				    	continue;
 				    }
-				    if(nextFile.endsWith(".jpg")){
-				    	System.err.println("CONVERTING");
-				    	img = convertImageFromRGBtoARGB(img);
+				    DecryptReturn DR = encrypt.encryptImage(img, seed);
+				    if(DR.decrpted == false) {
+				    	System.out.println("Decryption not successfull for: " + nextFile);
+				    	continue;
 				    }
-				    
-					img = encrypt.encryptImage(img, seed);
+					img = DR.image;
 					outputFile = encrypt.encryptName(nextFile.substring(0, nextFile.lastIndexOf('.')), seed) + ".png";
 					countSuccess++;
 				}
@@ -96,11 +105,9 @@ public class FileHandeling {
 				}
 				arr.newFiles.add(outputFile);
 				
-				System.out.println("Outputing: " + outputFile);
-				System.out.println("");
+				System.out.println("Outputing: " + outputFile + "\n");
 	
 				writeImage(img , f, outputFile);
-				
 				hideFile(nextFile);
 				arr.oldFiles.add(nextFile);
 				
@@ -109,7 +116,7 @@ public class FileHandeling {
 			
 			// If any file in folder was already encrypted
 			if(!arr.alreadyEncr.isEmpty()){
-				System.out.println("One of more files were already decripted. Skip ing these files.");				
+				System.out.println("One or more files were already decripted. Skip ing these files.");				
 			}
 			
 			deleteImages(arr.oldFiles);
@@ -121,23 +128,21 @@ public class FileHandeling {
 			return 'f';
 		}
 		catch(Exception e){
-			System.out.println("FileNotFoundException cught");
+			System.out.println("FileNotFoundException cought");
 			return runFailure(arr.newFiles, arr.img);
 		}
 
 		
 	}
 	
+	/*
+	 * Puts the hide property of a file to hidden
+	 */
 	private static void hideFile(String file) throws IOException {
 		Path filePath = Paths.get(file);
 		Files.setAttribute(filePath, "dos:hidden", true);
 	}
-	
-	private static BufferedImage convertImageFromRGBtoARGB(BufferedImage img) {
-		BufferedImage newImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    	newImage.getGraphics().drawImage(img, 0, 0, null);
-    	return newImage;
-	}
+
 	/*
 	 * When canceling Xcryption newly created files are deleted and all hidden files are unhidden
 	 */
