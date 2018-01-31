@@ -122,6 +122,8 @@ public class FileHandeling {
 			deleteImages(arr.oldFiles);
 			lblProsesslabel.setText(nrOfImages + "/" + nrOfImages);
 			
+//			xcryptDirectories(arr.dir, null, new Decryption(), seed);
+			
 			if(countSuccess > 0){
 				return 't';
 			}
@@ -133,6 +135,20 @@ public class FileHandeling {
 		}
 
 		
+	}
+	
+	private static void xcryptDirectories(ArrayList<String> dir, Encryption en, Decryption di, long seed) {
+		for(int i = 0; i < dir.size(); i++) {
+			File f = new File(dir.get(i));
+			f.renameTo(new File(xcrypDirChooser(dir.get(i), en, di, seed)));
+		}
+	}
+	
+	private static String xcrypDirChooser(String path, Encryption en, Decryption de, long seed) {
+		if(en != null) {
+			return en.encryptName(path, seed);
+		}
+		return de.decryptName(path, seed);
 	}
 	
 	/*

@@ -177,7 +177,7 @@ private static boolean chechImgAfterDoubleXcryption(String originalPath, long se
 	
 	/*
 	 * 1.000.000 lookups takes 1,019s so 2147483647 lookups would 
-	 * take approximately 21882s or approximately 6 hours. 
+	 * take approximately 2188s or approximately 36 min. 
 	 * That is way too fast!
 	 * How someone could use this to quickly find username and password
 	 * 1. Find any target file they want to decrtypt by brute force

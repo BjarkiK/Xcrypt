@@ -10,6 +10,7 @@ import javax.swing.JRadioButton;
 import main.java.is.personal.Xcrypt.connection.Run;
 
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.JPasswordField;
@@ -49,12 +51,9 @@ public class UI{
 	private int Encrypt = 0;
 	private int Decrypt = 1;
 	private JFrame frmEncrypt;
-	private JTextField textFieldPath, textFieldUsername;
-	private JPasswordField fieldPassword;
-	private JRadioButton rdbtnEncryp, rdbtnDecrypt;
-	private JButton btnStart, btnFolderTab, btnFileTab;
-	private JCheckBox chckbxEncryptOnExit, chckbxInclSubfolders;
-	private JLabel BGImage, lblProsesslabel, secretLabel, startBtnImage, selectFolderImage, tabsLabel;
+	private SpringLayout springLayout;
+	private JButton btnFileTab;
+	private JLabel secretLabel, startBtnImage;
 	private JProgressBar progressBar;
 	private DynamicProgressBarExecute exProgressBar;
 	
@@ -62,13 +61,24 @@ public class UI{
 	class DynamicProgressBarExecute extends SwingWorker<Object, Object>{
 		private String password, username, path, activeTab;
 		private int action;
+		private JButton btnStart;
+		private JCheckBox chckbxInclSubfolders, chckbxEncryptOnExit;
+		private JRadioButton rdbtnDecrypt;
+		private JProgressBar progressBar;
+		private JLabel lblProsesslabel;
 		
-		DynamicProgressBarExecute(String pw, String un, String path, int action, String activeTab){
+		DynamicProgressBarExecute(String pw, String un, String path, int action, String activeTab, JButton btnStart, JCheckBox chckbxInclSubfolders, JCheckBox chckbxEncryptOnExit, JRadioButton rdbtnDecrypt, JProgressBar progressBar, JLabel lblProsesslabel){
 			this.password = pw;
 			this.username = un;
 			this.path = path;
 			this.action = action;
 			this.activeTab = activeTab;
+			this.btnStart = btnStart;
+			this.chckbxInclSubfolders = chckbxInclSubfolders;
+			this.chckbxEncryptOnExit = chckbxEncryptOnExit;
+			this.rdbtnDecrypt = rdbtnDecrypt;
+			this.progressBar = progressBar;
+			this.lblProsesslabel = lblProsesslabel;
 		}
 
 		@Override
@@ -155,141 +165,97 @@ public class UI{
 	        		frmEncrypt.enable(true);
 	        		return;
 	        	}
-	        	decryptOnExit();
+	        	decryptOnExit(null, secretLabel, secretLabel);
 	        }
 	    });
-		SpringLayout springLayout = new SpringLayout();
+		springLayout = new SpringLayout();
 		frmEncrypt.getContentPane().setLayout(springLayout);
 		
 		
-		chckbxInclSubfolders = new JCheckBox("Include subfolders");
+		JTextField textFieldPath = createTextField(35, 60, 25, 365);	
+		JTextField textFieldUsername = createTextField(100, 125, 25, 250);
+		
+		JLabel pathLabel = createLabel("Enter folder path", 15, 25);
+		pathLabel.setFont(new Font("Cambria", Font.BOLD, 14));
+
+		JLabel pathErrorLabel = createLabel("", 60, 25);
+		pathErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
+		pathErrorLabel.setForeground(Color.ORANGE);
+		pathErrorLabel.setVisible(false);
+	
+		JLabel usernameErrorLabel = createLabel("Username can't be empty", 125, 25);
+		usernameErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
+		usernameErrorLabel.setForeground(Color.ORANGE);
+		usernameErrorLabel.setVisible(false);
+		
+		JLabel passwordLabel = createLabel("Enter password", 145, 25);
+		passwordLabel.setFont(new Font("Cambria", Font.BOLD, 14));
+		
+		JLabel passwordErrorLabel = createLabel("Password can't be empty", 190, 25);
+		passwordErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
+		passwordErrorLabel.setForeground(Color.ORANGE);
+		passwordErrorLabel.setVisible(false);;
+
+		createLabel("Folder", 18, 151);
+		
+		createLabel("File", 18, 205);
+		
+		JLabel tabsLabel = createLabel("Folder", 0, 0);
+		setLabelImage(tabsLabel, "FolderTabSelected.png");
+		
+		JPasswordField fieldPassword = createPasswordField(165, 190, 25, 250);	
+		
+		JCheckBox chckbxInclSubfolders = new JCheckBox("Include subfolders");
 		chckbxInclSubfolders.setFont(new Font("Cambria", Font.PLAIN, 14));
 		disableBackground(chckbxInclSubfolders);
 		springLayout.putConstraint(SpringLayout.NORTH, chckbxInclSubfolders, 205, SpringLayout.NORTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, chckbxInclSubfolders, 22, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(chckbxInclSubfolders);
 		
-		chckbxEncryptOnExit = new JCheckBox("Encrypt folder on exit");
+		JCheckBox chckbxEncryptOnExit = new JCheckBox("Encrypt folder on exit");
 		chckbxEncryptOnExit.setFont(new Font("Cambria", Font.PLAIN, 14));
 		disableBackground(chckbxEncryptOnExit);
 		chckbxEncryptOnExit.setSelected(true);
 		springLayout.putConstraint(SpringLayout.NORTH, chckbxEncryptOnExit, 225, SpringLayout.NORTH, frmEncrypt.getContentPane());
 		springLayout.putConstraint(SpringLayout.WEST, chckbxEncryptOnExit, 22, SpringLayout.WEST, frmEncrypt.getContentPane());
 		frmEncrypt.getContentPane().add(chckbxEncryptOnExit);
-		chckbxEncryptOnExit.hide();
+		chckbxEncryptOnExit.setVisible(false);
 
 		
 		
 		// Radio buttons (En/Decript)
-		JRadioButton rdbtnEncrypt = rdbtnEncrypt(springLayout, chckbxEncryptOnExit);
-		JRadioButton rdbtnDecrypt = rdbtnDecrypt(springLayout, chckbxEncryptOnExit);
+		JRadioButton rdbtnEncrypt = createRadioButton("Encrypt", 120, 330);
+		rdbtnEncrypt.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				chckbxEncryptOnExit.setVisible(false);
+			}
+		});
+		rdbtnEncrypt.setSelected(true);
+		
+		JRadioButton rdbtnDecrypt = createRadioButton("Decrypt", 140, 330);
+		rdbtnDecrypt.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if(tabsLabel.getText().equals("Folder")){
+					chckbxEncryptOnExit.setVisible(true);	
+				}
+			}
+		});
+		
 		grouprdbtn(rdbtnEncrypt, rdbtnDecrypt);
 
 
 		
-		
-		
-		JLabel pathLabel = new JLabel("Enter folder path");
-		pathLabel.setFont(new Font("Cambria", Font.BOLD, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, pathLabel, 15, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, pathLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(pathLabel);
-		
-		textFieldPath = new JTextField();
-		textFieldPath.setFont(new Font("Cambria", Font.PLAIN, 14));
-		textFieldPath.setOpaque(false);
-		textFieldPath.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-		springLayout.putConstraint(SpringLayout.NORTH, textFieldPath, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, textFieldPath, 60, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, textFieldPath, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, textFieldPath, 365, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(textFieldPath);
-		
-		
-		JLabel pathErrorLabel = new JLabel("");
-		pathErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, pathErrorLabel, 60, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, pathErrorLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		pathErrorLabel.setForeground(Color.ORANGE);
-		frmEncrypt.getContentPane().add(pathErrorLabel);
-		pathErrorLabel.setVisible(false);;
-		
-		
-	
-		
-		textFieldUsername = new JTextField();
-		textFieldUsername.setFont(new Font("Cambria", Font.PLAIN, 14));
-		textFieldUsername.setOpaque(false);
-		textFieldUsername.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-		springLayout.putConstraint(SpringLayout.NORTH, textFieldUsername, 100, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, textFieldUsername, 125, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, textFieldUsername, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, textFieldUsername, 250, SpringLayout.WEST, frmEncrypt.getContentPane());
-		textFieldUsername.setToolTipText("");
-		frmEncrypt.getContentPane().add(textFieldUsername);
-		
-		JLabel usernameErrorLabel = new JLabel("Username can't be empty");
-		usernameErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
-		usernameErrorLabel.setForeground(Color.ORANGE);
-		springLayout.putConstraint(SpringLayout.NORTH, usernameErrorLabel, 125, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, usernameErrorLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(usernameErrorLabel);
-		usernameErrorLabel.hide();
-		
-		
-		
-		
-		JLabel passwordLabel = new JLabel("Enter password");
-		passwordLabel.setFont(new Font("Cambria", Font.BOLD, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, passwordLabel, 145, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, passwordLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(passwordLabel);
-		
-		fieldPassword = new JPasswordField();
-		fieldPassword.setOpaque(false);
-		fieldPassword.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-		springLayout.putConstraint(SpringLayout.NORTH, fieldPassword, 165, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, fieldPassword, 190, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, fieldPassword, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, fieldPassword, 250, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(fieldPassword);
-
-		JLabel passwordErrorLabel = new JLabel("Password can't be empty");
-		passwordErrorLabel.setFont(new Font("Cambria", Font.PLAIN, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, passwordErrorLabel, 190, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, passwordErrorLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		passwordErrorLabel.setForeground(Color.ORANGE);
-		frmEncrypt.getContentPane().add(passwordErrorLabel);
-		passwordErrorLabel.hide();
-
-		JLabel FolderLabel = new JLabel("Folder");
-		FolderLabel.setFont(new Font("Cambria", Font.PLAIN, 13));
-		springLayout.putConstraint(SpringLayout.NORTH, FolderLabel, 18 , SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, FolderLabel, 151, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(FolderLabel);
-		
-		JLabel FileLabel = new JLabel("File");
-		FileLabel.setFont(new Font("Cambria", Font.PLAIN, 13));
-		springLayout.putConstraint(SpringLayout.NORTH, FileLabel, 18, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, FileLabel, 205, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(FileLabel);
-		
-		
-		tabsLabel = new JLabel("Folder");
-		setLabelImage(tabsLabel, "FolderTabSelected.png");
-		springLayout.putConstraint(SpringLayout.NORTH, tabsLabel, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, tabsLabel, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(tabsLabel);
-		
-		btnFolderTab = new JButton("");
+		JButton btnFolderTab = createButton("", 12, 35, 140, 199);
 		btnFolderTab.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				if(tabsLabel.getText().equals("File")){
 					if(rdbtnDecrypt.isSelected()){
-						chckbxEncryptOnExit.show();
+						chckbxEncryptOnExit.setVisible(true);
 					}
-					chckbxInclSubfolders.show();
+					chckbxInclSubfolders.setVisible(true);
 					setLabelImage(tabsLabel, "FolderTabSelected.png");
 					tabsLabel.setText("Folder");
 					springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 12, SpringLayout.NORTH, frmEncrypt.getContentPane());
@@ -299,14 +265,8 @@ public class UI{
 				}
 			}
 		});
-		disableBackground(btnFolderTab);
-		springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 12, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, btnFolderTab, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, btnFolderTab, 140, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 199 , SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(btnFolderTab);
 		
-		btnFileTab = new JButton("");
+		btnFileTab = createButton("", 14, 35, 199, 246);
 		btnFileTab.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -317,25 +277,20 @@ public class UI{
 					springLayout.putConstraint(SpringLayout.NORTH, btnFolderTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.EAST, btnFolderTab, 187 , SpringLayout.WEST, frmEncrypt.getContentPane());
 					springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 187, SpringLayout.WEST, frmEncrypt.getContentPane());
-					chckbxEncryptOnExit.hide();
-					chckbxInclSubfolders.hide();
+					chckbxEncryptOnExit.setVisible(false);
+					chckbxInclSubfolders.setVisible(false);
 				}
 			}
 		});
-		disableBackground(btnFileTab);
-		springLayout.putConstraint(SpringLayout.NORTH, btnFileTab, 14, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, btnFileTab, 35, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, btnFileTab, 199, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, btnFileTab, 246, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(btnFileTab);
 		
 		
 		
-		secretLabel = new JLabel("");
+		secretLabel = createLabel("", 0, 0);
+		secretLabel.setVisible(false);
 		secretLabel.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent arg0) {
 				System.out.println("---------------------------------------------------PropertyChange");
-				frmEncrypt.show();
+				frmEncrypt.setVisible(true);
 				if(secretLabel.getText().equals("Wait")){
 					secretLabel.setText("");
 				}
@@ -344,10 +299,6 @@ public class UI{
 				}
 			}
 		});
-		springLayout.putConstraint(SpringLayout.NORTH, secretLabel, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, secretLabel, 0, SpringLayout.EAST, frmEncrypt.getContentPane());
-		secretLabel.hide();
-		frmEncrypt.getContentPane().add(secretLabel);
 		
 		
 
@@ -358,7 +309,7 @@ public class UI{
 				if(secretLabel.getText().equals("Exit") && progressBar.getValue() == 100){
 					System.out.println("Inside");
 					secretLabel.setText("");
-					decryptOnExit();
+					decryptOnExit(chckbxEncryptOnExit, tabsLabel, tabsLabel);
 				}
 			}
 		});
@@ -371,15 +322,12 @@ public class UI{
 		frmEncrypt.getContentPane().add(progressBar);
 		
 		
-		lblProsesslabel = new JLabel("");
+		JLabel lblProsesslabel = createLabel("", 456, 35);
 		lblProsesslabel.setFont(new Font("Cambria", Font.PLAIN, 11));
-		springLayout.putConstraint(SpringLayout.NORTH, lblProsesslabel, 456, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, lblProsesslabel, 35, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(lblProsesslabel);
 		
 		
 		
-		btnStart = new JButton("Start");
+		JButton btnStart = new JButton("Start");
 		btnStart.setFont(new Font("Cambria", Font.PLAIN, 59));
 		disableBackground(btnStart);
 		springLayout.putConstraint(SpringLayout.NORTH, btnStart, 260, SpringLayout.NORTH, frmEncrypt.getContentPane());
@@ -394,7 +342,7 @@ public class UI{
 				}
 				progressBar.setValue(0);
 				progressBar.setForeground(Color.GREEN);
-				if(mouseReleasedInsideButton(e) == false){
+				if(mouseReleasedInsideButton(e, btnStart) == false){
 					return;
 				}
 
@@ -411,47 +359,45 @@ public class UI{
 
 				if(path.equals("")){
 					pathErrorLabel.setText("Please enter path!");
-					pathErrorLabel.show();
+					pathErrorLabel.setVisible(true);
 					runProgram = false;
 				}
 				else if(!new File(path).exists()){
 					pathErrorLabel.setText("Please enter valid path!");
-					pathErrorLabel.show();
+					pathErrorLabel.setVisible(true);
 					runProgram = false;
 				}
 				else{
-					pathErrorLabel.hide();
+					pathErrorLabel.setVisible(false);
 				}
 				
 				if(username.equals("")){
-					usernameErrorLabel.show();
+					usernameErrorLabel.setVisible(true);
 					runProgram = false;
 				}
 				else{
-					usernameErrorLabel.hide();
+					usernameErrorLabel.setVisible(false);
 				}
 				
 				if(password.equals("")){
-					passwordErrorLabel.show();
+					passwordErrorLabel.setVisible(true);
 					runProgram = false;
 				}
 				else{
-					passwordErrorLabel.hide();
+					passwordErrorLabel.setVisible(false);
 				}
 				
 				if(runProgram == true){
-					exProgressBar = new DynamicProgressBarExecute(password, username, path, action, tabsLabel.getText());
+					exProgressBar = new DynamicProgressBarExecute(password, username, path, action, tabsLabel.getText(), btnStart, chckbxEncryptOnExit, chckbxEncryptOnExit, rdbtnDecrypt, progressBar, lblProsesslabel);
 					exProgressBar.execute();
 				}
 			}
 			@Override
 			public void mouseEntered(MouseEvent arg0) {		
-//				btnStart.setForeground(new Color(63, 132, 216));
 				setLabelImage(startBtnImage, "btnHover.png");
 			}
 			@Override
 			public void mouseExited(MouseEvent e) {
-//				btnStart.setForeground(Color.BLACK);
 				setLabelImage(startBtnImage, "Empty.png");
 			}
 		});
@@ -461,24 +407,22 @@ public class UI{
 		fieldPassword.setText("bjarki");
 		textFieldPath.setText("E:\\Xcrypt\\photos - Copy");
 		
-		JLabel usernameLabel = new JLabel("Enter username");
+		JLabel usernameLabel = createLabel("Enter username", 80, 25);new JLabel("Enter username");
 		usernameLabel.setFont(new Font("Cambria", Font.BOLD, 14));
-		springLayout.putConstraint(SpringLayout.NORTH, usernameLabel, 80, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, usernameLabel, 25, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(usernameLabel);
 		
+		JLabel selectFolderImage = createLabel("", 0, 0);
+
+		startBtnImage = createLabel("", 0, 0);
 		
+		JLabel BGImage = createLabel("", 0, 0);
+		setLabelImage(BGImage, "bgImageMain.png");
 		
-		JLabel btnSelectPathButton = new JLabel("");
-		springLayout.putConstraint(SpringLayout.NORTH, btnSelectPathButton, 36, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.SOUTH, btnSelectPathButton, 59, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, btnSelectPathButton, 379, SpringLayout.WEST, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.EAST, btnSelectPathButton, 404, SpringLayout.WEST, frmEncrypt.getContentPane());
+		JLabel btnSelectPathButton = createLabel("", 36, 59, 379, 404);
 		btnSelectPathButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setLabelImage(selectFolderImage, "Empty.png");
-				selectPath(tabsLabel);
+				selectPath(tabsLabel, textFieldUsername);
 			}
 			@Override
 			public void mouseEntered(MouseEvent arg0) {		
@@ -489,37 +433,90 @@ public class UI{
 				setLabelImage(selectFolderImage, "Empty.png");
 			}
 		});
-		frmEncrypt.getContentPane().add(btnSelectPathButton);
-		
-		selectFolderImage = new JLabel("");
-		springLayout.putConstraint(SpringLayout.NORTH, selectFolderImage, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, selectFolderImage, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(selectFolderImage);
 
-		startBtnImage = new JLabel("");
-		springLayout.putConstraint(SpringLayout.NORTH, startBtnImage, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, startBtnImage, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(startBtnImage);
-		
-		BGImage = new JLabel("");
-		setLabelImage(BGImage, "bgImageMain.png");
-		springLayout.putConstraint(SpringLayout.NORTH, BGImage, 0, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, BGImage, 0, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(BGImage);
 	
+	}
+	
+	
+	private JLabel createLabel(String text, int north, int west) {
+		JLabel label = new JLabel(text);
+		label.setHorizontalAlignment(SwingConstants.CENTER);
+		label.setFont(new Font("Cambria", Font.PLAIN, 13));
+		setSmallSpringlayout(label, north, west);
+		setSmallSpringlayout(label, north, west);
+		frmEncrypt.getContentPane().add(label);
+		
+		return label;
+	}
+	
+	private JLabel createLabel(String text, int north, int south, int west, int east) {
+		JLabel label = createLabel(text, north, west);
+		setBigSpringlayout(label, north, south, west, east);
+		
+		return label;
+	}
+
+	
+	private JPasswordField createPasswordField(int north, int south, int west, int east) {
+		JPasswordField passwordField = new JPasswordField();
+		passwordField.setOpaque(false);
+		passwordField.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		setBigSpringlayout(passwordField, north, south, west, east);
+		frmEncrypt.getContentPane().add(passwordField);
+		
+		return passwordField;
+	}
+	
+	private JTextField createTextField(int north, int south, int west, int east) {
+		JTextField textField = new JTextField();
+		textField.setFont(new Font("Cambria", Font.PLAIN, 14));
+		textField.setOpaque(false);
+		textField.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		setBigSpringlayout(textField, north, south, west, east);
+		frmEncrypt.getContentPane().add(textField);
+		
+		return textField;
+	}
+	
+	private JButton createButton(String text, int north, int south, int west, int east) {
+		JButton button = new JButton(text);
+		disableBackground(button);
+		setBigSpringlayout(button, north, south, west, east);
+		frmEncrypt.getContentPane().add(button);
+		
+		return button;
+	}
+	
+	private JRadioButton createRadioButton(String text, int north, int west){
+		JRadioButton radioButton = new JRadioButton(text);
+		radioButton.setFont(new Font("Cambria", Font.PLAIN, 14));
+		disableBackground(radioButton);
+		setSmallSpringlayout(radioButton, north, west);
+		frmEncrypt.getContentPane().add(radioButton);
+		return radioButton;
+	}
+	
+	private void setBigSpringlayout(Component comp, int north, int south, int west, int east) {
+		setSmallSpringlayout(comp, north, west);
+		springLayout.putConstraint(SpringLayout.SOUTH, comp, south, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.EAST, comp, east, SpringLayout.WEST, frmEncrypt.getContentPane());
+	}
+	
+	private void setSmallSpringlayout(Component comp, int north, int west) {
+		springLayout.putConstraint(SpringLayout.NORTH, comp, north, SpringLayout.NORTH, frmEncrypt.getContentPane());
+		springLayout.putConstraint(SpringLayout.WEST, comp, west, SpringLayout.WEST, frmEncrypt.getContentPane());
 	}
 
 	
 	/*
 	 * Decrypts folders in array pathToFolder if any
 	 */
-	@SuppressWarnings("deprecation")
-	private void decryptOnExit(){
+	private void decryptOnExit(JCheckBox chckbxInclSubfolders, JLabel tabsLabel, JLabel lblProsesslabel){
     	int authInt = 0;
     	System.out.println("decrypting on exit " + pathToFolder.size());
     	for(int i = 0; i < pathToFolder.size(); i++){
     		boolean inclSubfolders = chckbxInclSubfolders.isSelected();
-    		frmEncrypt.hide();
+    		frmEncrypt.setVisible(false);
     		Run decryptOnExit = new Run(authentication.get(authInt), authentication.get(authInt+1), pathToFolder.get(i), Encrypt, tabsLabel.getText());
     		decryptOnExit.run(progressBar, lblProsesslabel, inclSubfolders);
     		authInt = authInt+2;
@@ -531,8 +528,7 @@ public class UI{
 	/*
 	 * Select path to folder with JFileChooser
 	 */
-	@SuppressWarnings("deprecation")
-	private void selectPath(JLabel tabLabel){
+	private void selectPath(JLabel tabLabel, JTextField textFieldPath){
 		File setPath = new File(textFieldPath.getText());
 		if(!setPath.isDirectory()){
 			setPath = new File(textFieldPath.getText().substring(0, textFieldPath.getText().lastIndexOf("\\")));
@@ -553,47 +549,11 @@ public class UI{
 			System.out.println(fileChooser.getSelectedFile());
 			String selectedPath = fileChooser.getSelectedFile().toString();
 		  	textFieldPath.setText(selectedPath);
-		  	fileChooser.hide();
+		  	fileChooser.setVisible(false);
 		}
 	}
-	private JRadioButton rdbtnEncrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
-		rdbtnEncryp = new JRadioButton("Encrypt");
-		rdbtnEncryp.setFont(new Font("Cambria", Font.PLAIN, 14));
-		disableBackground(rdbtnEncryp);
-		rdbtnEncryp.addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("deprecation")
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				chckbxEncryptOnExit.hide();
-			}
-		});
-		rdbtnEncryp.setSelected(true);
-		springLayout.putConstraint(SpringLayout.NORTH, rdbtnEncryp, 120, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, rdbtnEncryp, 330, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(rdbtnEncryp);
-		return rdbtnEncryp;
-	}
 	
-	private JRadioButton rdbtnDecrypt(SpringLayout springLayout, JCheckBox chckbxEncryptOnExit){
-		rdbtnDecrypt = new JRadioButton("Decrypt");
-		rdbtnDecrypt.setFont(new Font("Cambria", Font.PLAIN, 14));
-		disableBackground(rdbtnDecrypt);
-		rdbtnDecrypt.addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("deprecation")
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(tabsLabel.getText().equals("Folder")){
-					chckbxEncryptOnExit.show();	
-				}
-			}
-		});
-		springLayout.putConstraint(SpringLayout.NORTH, rdbtnDecrypt, 140, SpringLayout.NORTH, frmEncrypt.getContentPane());
-		springLayout.putConstraint(SpringLayout.WEST, rdbtnDecrypt, 330, SpringLayout.WEST, frmEncrypt.getContentPane());
-		frmEncrypt.getContentPane().add(rdbtnDecrypt);
-		return rdbtnDecrypt;
-	}
-	
-	private boolean mouseReleasedInsideButton(MouseEvent e){
+	private boolean mouseReleasedInsideButton(MouseEvent e, JButton btnStart){
 		double btnHeight = btnStart.getSize().getHeight();
 		double btnWidth = btnStart.getSize().getWidth();
 		
